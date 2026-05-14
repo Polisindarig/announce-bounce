@@ -1,0 +1,48 @@
+# Data — never commit
+data/raw/
+data/processed/
+data/labeled/*.csv
+!data/labeled/.gitkeep
+
+# Backtest outputs
+backtest/results/*.json
+backtest/results/*.parquet
+backtest/results/*.png
+!backtest/results/.gitkeep
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+venv/
+env/
+.env
+.env.local
+
+# Notebooks
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# IDE
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Logs
+*.log
+logs/
+
+# Models / artifacts
+*.bin
+*.safetensors
+*.pt
+*.pth
+models/cache/
+
+# Secrets
+*.key
+secrets.yaml

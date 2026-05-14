@@ -1,0 +1,17 @@
+# PRE-REGISTERED DATA WINDOW
+# Committed before any modeling. Changes require written justification.
+# See docs/03-project-plan.md §0.2
+
+data_extraction_date: "2026-05-14"
+
+# 30-month window ending at extraction date
+window_start: "2023-11-14"   # 30 months before extraction
+window_end: "2026-05-14"
+
+# In-sample: first 24 months
+in_sample_start: "2023-11-14"
+in_sample_end: "2025-11-14"
+
+# Out-of-sample: final 6 months (FROZEN, ONE RUN ONLY)
+oos_start: "2025-11-14"
+oos_end: "2026-05-14"
