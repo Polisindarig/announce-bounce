@@ -188,7 +188,7 @@ The OOS result file `oos_run.json` embeds this manifest. The thesis prints it as
 
 ---
 
-## Phase 1 — Data Acquisition
+## Phase 1 — Data Collection
 
 **Goal:** Clean `announcements × price_bars` dataset for 30 months.
 
@@ -240,7 +240,7 @@ The OOS result file `oos_run.json` embeds this manifest. The thesis prints it as
 
 ---
 
-## Phase 2 — Category Labeling & Classifier
+## Phase 2 — Data Pre-processing (Category Labeling & Classifier)
 
 **Goal:** Frozen category classifier.
 - **Minimum acceptable:** macro-F1 ≥ 0.85, Cohen's κ ≥ 0.75. Per-class precision/recall reported separately because category support is unbalanced.
@@ -268,7 +268,7 @@ The OOS result file `oos_run.json` embeds this manifest. The thesis prints it as
 
 ---
 
-## Phase 3 — Sentiment Scoring (OPTIONAL DEPTH)
+## Phase 3 — Data Pre-processing (Sentiment Scoring)
 
 **Goal:** Frozen per-category sentiment scorer using CryptoBERT (ElKulako 2022).
 
@@ -286,7 +286,7 @@ The OOS result file `oos_run.json` embeds this manifest. The thesis prints it as
 
 ---
 
-## Phase 4 — Event Study & Calibration
+## Phase 4 — Exploratory Data Analysis (Event Study & Calibration)
 
 **Goal:** Frozen category-horizon lookup table that drives the bot.
 
@@ -311,7 +311,7 @@ The OOS result file `oos_run.json` embeds this manifest. The thesis prints it as
 
 ---
 
-## Phase 5 — Strategy & Backtester
+## Phase 5 — Data Modelling (Strategy & Backtester)
 
 **Goal:** Event-driven backtester producing trade log + equity curve.
 
@@ -346,7 +346,7 @@ Run M0 (category-only) and M1 (category + CryptoBERT sentiment bucket) separatel
 
 ---
 
-## Phase 6 — Out-of-Sample Run
+## Phase 6 — Model Evaluation (Out-of-Sample Test)
 
 **Goal:** Headline thesis result.
 
@@ -369,7 +369,7 @@ Run M0 (category-only) and M1 (category + CryptoBERT sentiment bucket) separatel
 
 ---
 
-## Phase 7 — Robustness & Sensitivity
+## Phase 7 — Result Interpretation (Robustness & Sensitivity)
 
 Required tests:
 1. **Latency stress:** 5 s, 30 s, 60 s, 120 s — report all.
@@ -383,7 +383,7 @@ Required tests:
 
 ---
 
-## Phase 8 — Thesis Writing (parallel with later phases)
+## Phase 8 — Thesis Writing & Presentation (parallel with later phases)
 
 Outline in `docs/04-thesis-outline.md`.
 - Week 12: Chapters 1–2 (Intro, Lit Review) — already drafted in `docs/01-literature-review.md`
@@ -436,9 +436,10 @@ Outline in `docs/04-thesis-outline.md`.
 6. **Binance-only execution** misses pre-`t_binance_trading` pump on other exchanges for `listing_spot` events; quantified descriptively (§Discussion) but not traded. **This is a headline limitation for the listing category:** the pre-Binance pump may represent the majority of the total listing alpha. OOS results for `listing_spot` must be framed as "the tradable alpha available to a **Binance-only** bot", not the total listing-announcement alpha. The Discussion chapter must explicitly state this.
 7. **CryptoBERT temporal leakage:** CryptoBERT (ElKulako 2022) was trained on StockTwits data from Nov 2021 – Jun 2022, which overlaps our in-sample data window. This means the sentiment model may have seen text patterns contemporaneous with our analysis period. We do not fine-tune CryptoBERT (inference-only), which limits the leakage to pretrain-level contamination, but it cannot be fully ruled out. This is acknowledged as a limitation; a cleaner alternative (FinBERT, trained on pre-crypto data) is tested as a sensitivity check if M1 is selected.
 
-## Current Status (2026-05-14)
+## Current Status (2026-05-20)
 
 ✅ **Phase 0 — Setup & Pre-flight:** Complete (this document is the lock-in).
-✅ **Literature review:** `docs/01-literature-review.md` (key crypto citations web-verified).
-✅ **This plan:** v5 — three rounds of peer review incorporated.
-👉 **NEXT: Phase 1 — Data Acquisition** (scraper development).
+✅ **Phase 1 — Data Collection:** 2616 anons scraped, kline verileri mevcut.
+✅ **Phase 2 — Data Pre-processing (Category):** 12-sınıf rule-based classifier hazır.
+✅ **Phase 3 — Data Pre-processing (Sentiment):** CryptoBERT + FinBERT + lexical baseline tamamlandı.
+👉 **NEXT: Phase 4 — Exploratory Data Analysis** (event study & calibration).

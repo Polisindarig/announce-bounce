@@ -4,14 +4,14 @@
 
 data_extraction_date: "2026-05-14"
 
-# 30-month window ending at extraction date
-window_start: "2023-11-14"   # 30 months before extraction
+# Cross-venue (MEXC) 5m OHLCV is usable from ~2025-06-01; earlier months were dropped
+# so announcement + MEXC pulls align with available intraday data.
+window_start: "2025-06-01"
 window_end: "2026-05-14"
 
-# In-sample: first 24 months
-in_sample_start: "2023-11-14"
-in_sample_end: "2025-11-14"
+# ~11.5 month span: in-sample then short OOS (adjust if committee wants different cut)
+in_sample_start: "2025-06-01"
+in_sample_end: "2026-02-14"
 
-# Out-of-sample: final 6 months (FROZEN, ONE RUN ONLY)
-oos_start: "2025-11-14"
+oos_start: "2026-02-14"
 oos_end: "2026-05-14"

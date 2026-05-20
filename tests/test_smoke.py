@@ -9,8 +9,9 @@ def test_version():
     assert isinstance(src.__version__, str)
 
 
-def test_category_enum_has_nine_values():
-    assert len(list(Category)) == 9
+def test_category_enum_has_tier1_values():
+    assert Category.LISTING_SPOT.value == "LISTING_SPOT"
+    assert Category.LAUNCHPOOL_LAUNCHPAD.value == "LAUNCHPOOL_LAUNCHPAD"
 
 
 def test_direction_enum():

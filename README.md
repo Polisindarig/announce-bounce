@@ -1,4 +1,4 @@
-# Binance Announcement-Driven Algorithmic Trading Bot
+l# Binance Announcement-Driven Algorithmic Trading Bot
 
 **Senior Thesis Project** — An event-driven cryptocurrency trading bot that classifies Binance announcements by category and sentiment, then executes calibrated trades with category-specific position sizing and dynamic take-profit / stop-loss levels.
 
