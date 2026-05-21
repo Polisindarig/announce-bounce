@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Announce &amp; Bounce — Algorithmic Trading Bot</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- ============================================================
+       LANDING PAGE (visible when not in dashboard)
+       ============================================================ -->
+  <div id="landing" class="landing">
+
+    <!-- ===== NAV ===== -->
+    <nav class="landing-nav">
+      <div class="landing-nav-inner">
+        <div class="nav-brand">
+          <div class="nav-logo">A</div>
+          <span class="nav-title">Announce &amp; Bounce</span>
+        </div>
+        <div class="nav-links">
+          <a href="#how-it-works">How It Works</a>
+          <a href="#strategy">Strategy</a>
+          <a href="#risk">Risk</a>
+          <a href="#faq">FAQ</a>
+          <button class="btn btn-sm" onclick="enterDashboard()">Open Dashboard</button>
+        </div>
+        <button class="mobile-menu-btn" id="landing-menu-btn" aria-label="Menu">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </nav>
+
+    <!-- ===== HERO ===== -->
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-badge">Algorithmic Trading Bot</div>
+        <h1 class="hero-title">Trade Binance listings<br/>before the crowd.</h1>
+        <p class="hero-sub">
+          Announce &amp; Bounce monitors Binance announcements in real-time. When a new listing is detected, it executes on MEXC within seconds — capturing the price impact before it fades.
+        </p>
+        <div class="hero-actions">
+          <button class="btn btn-primary btn-lg" onclick="enterDashboard()">
+            Open Dashboard
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m-4-4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <a href="#how-it-works" class="btn btn-ghost btn-lg">Learn More</a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="hero-wr">—</span>
+            <span class="hero-stat-label">Win Rate (OOS)</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="hero-trades">—</span>
+            <span class="hero-stat-label">Trades Executed</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="hero-latency">&lt;5s</span>
+            <span class="hero-stat-label">Detection Latency</span>
+          </div>
+          <div class="hero-stat-divider"></div>
+          <div class="hero-stat">
+            <span class="hero-stat-value" id="hero-pf">—</span>
+            <span class="hero-stat-label">Profit Factor</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== DASHBOARD PREVIEW ===== -->
+    <section class="section" id="how-it-works">
+      <div class="section-inner">
+        <div class="section-label">Live Dashboard</div>
+        <h2 class="section-title">Everything at a glance.</h2>
+        <p class="section-sub">Monitor your bot's performance, open positions, and system health from a single dashboard. No complexity, no noise.</p>
+
+        <div class="preview-grid">
+          <div class="preview-card preview-card-wide">
+            <div class="preview-card-header">
+              <span class="preview-dot green"></span>
+              <span>Bot Status</span>
+            </div>
+            <div class="preview-card-body">
+              <div class="preview-status-row">
+                <div>
+                  <div class="preview-label">Status</div>
+                  <div class="preview-value green">Running</div>
+                </div>
+                <div>
+                  <div class="preview-label">Uptime</div>
+                  <div class="preview-value">14d 6h 32m</div>
+                </div>
+                <div>
+                  <div class="preview-label">Mode</div>
+                  <div class="preview-value amber">Paper Trading</div>
+                </div>
+                <div>
+                  <div class="preview-label">Open Positions</div>
+                  <div class="preview-value">0 / 3</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-card-header">
+              <span>Active Strategy</span>
+            </div>
+            <div class="preview-card-body">
+              <div class="preview-label">Model</div>
+              <div class="preview-value" style="font-size:18px;margin-bottom:8px">M0 Category-Only</div>
+              <div class="preview-label">Signal</div>
+              <div class="preview-value">First Binance Listing</div>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-card-header">
+              <span>Current Signal</span>
+            </div>
+            <div class="preview-card-body">
+              <div class="preview-label">Last Detected</div>
+              <div class="preview-value mono">2 hours ago</div>
+              <div class="preview-label" style="margin-top:8px">Action</div>
+              <div class="preview-value green">Watching — no match</div>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-card-header">
+              <span>Last Trade</span>
+            </div>
+            <div class="preview-card-body" id="preview-last-trade">
+              <div class="preview-label">Loading...</div>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-card-header">
+              <span>Risk Level</span>
+            </div>
+            <div class="preview-card-body">
+              <div class="risk-meter">
+                <div class="risk-fill" style="width:25%"></div>
+              </div>
+              <div class="preview-value green" style="margin-top:8px">Conservative</div>
+              <div class="preview-label">Max 3 concurrent, 5% daily limit</div>
+            </div>
+          </div>
+
+          <div class="preview-card">
+            <div class="preview-card-header">
+              <span>API Status</span>
+            </div>
+            <div class="preview-card-body">
+              <div class="api-row"><span>Binance CMS</span><span class="preview-dot green"></span></div>
+              <div class="api-row"><span>MEXC REST</span><span class="preview-dot green"></span></div>
+              <div class="api-row"><span>MEXC WebSocket</span><span class="preview-dot amber"></span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== STRATEGY ===== -->
+    <section class="section section-alt" id="strategy">
+      <div class="section-inner">
+        <div class="section-label">Strategy Logic</div>
+        <h2 class="section-title">Simple thesis. Disciplined execution.</h2>
+        <p class="section-sub">The strategy is grounded in a well-documented market inefficiency: Binance listing announcements create predictable short-term price impact on secondary exchanges.</p>
+
+        <div class="steps-grid">
+          <div class="step-card">
+            <div class="step-number">01</div>
+            <h3>Detect</h3>
+            <p>Poll Binance announcement API every 1-2 seconds. Classify each post: is this a new listing signal for a coin already trading on MEXC?</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">02</div>
+            <h3>Validate</h3>
+            <p>Confirm the coin is actively trading on MEXC with sufficient liquidity. Filter out stablecoins, gold tokens, and mis-extracted symbols.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">03</div>
+            <h3>Execute</h3>
+            <p>Submit a market order on MEXC within seconds. Position sized to 1% account risk, capped at 0.5% of pair volume.</p>
+          </div>
+          <div class="step-card">
+            <div class="step-number">04</div>
+            <h3>Manage</h3>
+            <p>Automated exit via take-profit (+13.6%), stop-loss, or 8-hour time stop. No manual intervention needed.</p>
+          </div>
+        </div>
+
+        <div class="strategy-findings">
+          <div class="finding-card">
+            <div class="finding-icon green-bg">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10l3 3 7-7" stroke="#34C77B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <h4>Spot Listing</h4>
+              <p>Statistically significant pump on MEXC. Mean +76.6%, p &lt; 0.001. This is the primary trade signal.</p>
+            </div>
+          </div>
+          <div class="finding-card">
+            <div class="finding-icon red-bg">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="#E5484D" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <h4>Launchpool / Launchpad</h4>
+              <p>No statistically significant edge found. Excluded from trading after rigorous analysis.</p>
+            </div>
+          </div>
+          <div class="finding-card">
+            <div class="finding-icon amber-bg">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 6v4m0 4h.01" stroke="#F5A524" stroke-width="2" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <h4>Delisting</h4>
+              <p>Used as a forced-exit signal only. If the bot holds a coin that gets delisted, it exits immediately.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== RISK MANAGEMENT ===== -->
+    <section class="section" id="risk">
+      <div class="section-inner">
+        <div class="section-label">Risk Management</div>
+        <h2 class="section-title">Built to protect capital first.</h2>
+        <p class="section-sub">Every trade has predefined risk limits. No exceptions, no overrides, no emotional decisions.</p>
+
+        <div class="risk-grid">
+          <div class="risk-card">
+            <div class="risk-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>Position Sizing</h3>
+            <p>1% account risk per trade. Position capped at 0.5% of pair's trailing volume.</p>
+          </div>
+          <div class="risk-card">
+            <div class="risk-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 9v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <h3>Stop Loss</h3>
+            <p>Every trade has a hard stop-loss. Calibrated from historical adverse excursion (30th percentile).</p>
+          </div>
+          <div class="risk-card">
+            <div class="risk-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>Time Stop</h3>
+            <p>Positions auto-close after 8 hours. No holding overnight on momentum trades.</p>
+          </div>
+          <div class="risk-card">
+            <div class="risk-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M3 3v18h18M7 14l4-4 4 4 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>Daily Loss Limit</h3>
+            <p>Trading halts if daily drawdown exceeds 5%. Resumes next UTC day automatically.</p>
+          </div>
+          <div class="risk-card">
+            <div class="risk-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2M9 11a4 4 0 100-8 4 4 0 000 8zM23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>Concurrency Limit</h3>
+            <p>Maximum 3 open positions at once. No more than 1 trade per asset.</p>
+          </div>
+          <div class="risk-card">
+            <div class="risk-card-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <h3>Pessimistic Fills</h3>
+            <p>Backtest uses worst-case convention: if TP and SL trigger in the same bar, SL is taken.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== EXCHANGE CONNECTION ===== -->
+    <section class="section section-alt">
+      <div class="section-inner">
+        <div class="section-label">Connections</div>
+        <h2 class="section-title">Two exchanges. One pipeline.</h2>
+        <p class="section-sub">Signal comes from Binance. Execution happens on MEXC. Clean separation of concerns.</p>
+
+        <div class="exchange-flow">
+          <div class="exchange-card">
+            <div class="exchange-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><path d="M16 4l12 8v8l-12 8-12-8V12l12-8z" stroke="#F5A524" stroke-width="1.5"/><path d="M16 12l4 2.67v5.33L16 22.67 12 20v-5.33L16 12z" fill="#F5A524" opacity="0.2" stroke="#F5A524" stroke-width="1"/></svg>
+            </div>
+            <h3>Binance</h3>
+            <p>Signal source</p>
+            <div class="exchange-detail">CMS API polled every 1-2s for new announcements</div>
+          </div>
+
+          <div class="flow-arrow">
+            <svg width="40" height="20" viewBox="0 0 40 20" fill="none"><path d="M0 10h32m-6-6l6 6-6 6" stroke="#5A6178" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="flow-label">&lt; 5 seconds</span>
+          </div>
+
+          <div class="exchange-card">
+            <div class="exchange-icon">
+              <svg width="32" height="32" viewBox="0 0 32 32" fill="none"><rect x="4" y="8" width="24" height="16" rx="3" stroke="#3E63DD" stroke-width="1.5"/><path d="M10 16h4m4 0h4" stroke="#3E63DD" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <h3>MEXC</h3>
+            <p>Execution venue</p>
+            <div class="exchange-detail">REST API market orders on pre-listed coins</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== NOTIFICATIONS ===== -->
+    <section class="section">
+      <div class="section-inner">
+        <div class="section-label">Alerts &amp; Monitoring</div>
+        <h2 class="section-title">Stay informed without being overwhelmed.</h2>
+        <p class="section-sub">Get notified about what matters. Ignore what doesn't.</p>
+
+        <div class="alerts-demo">
+          <div class="alert-item alert-success">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="alert-content">
+              <strong>Trade Opened — AVNT</strong>
+              <span>Bought on MEXC at $0.866 | Signal: Will List (Seed Tag)</span>
+            </div>
+            <span class="alert-time">2m ago</span>
+          </div>
+          <div class="alert-item alert-success">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 8l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div class="alert-content">
+              <strong>Take Profit Hit — AVNT</strong>
+              <span>Closed at $0.986 | Return: +13.64% | Duration: 35m</span>
+            </div>
+            <span class="alert-time">37m ago</span>
+          </div>
+          <div class="alert-item alert-info">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.5"/><path d="M8 5v3m0 3h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="alert-content">
+              <strong>Announcement Detected — USDE</strong>
+              <span>Skipped: stablecoin (excluded from strategy)</span>
+            </div>
+            <span class="alert-time">1h ago</span>
+          </div>
+          <div class="alert-item alert-warning">
+            <div class="alert-icon">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M8 5v4m0 2h.01" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+            </div>
+            <div class="alert-content">
+              <strong>MEXC WebSocket Reconnecting</strong>
+              <span>Connection dropped, attempting reconnection (attempt 2/5)</span>
+            </div>
+            <span class="alert-time">3h ago</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== SECURITY ===== -->
+    <section class="section section-alt">
+      <div class="section-inner">
+        <div class="section-label">Security &amp; Transparency</div>
+        <h2 class="section-title">Open methodology. Verifiable results.</h2>
+
+        <div class="security-grid">
+          <div class="security-item">
+            <h4>Pre-Registered Protocol</h4>
+            <p>Data windows, IS/OOS split, and strategy parameters were committed to git before any modeling. Changes require written justification.</p>
+          </div>
+          <div class="security-item">
+            <h4>Reproducibility Manifest</h4>
+            <p>Every backtest run records SHA-256 hashes of config files, source code state, and Python package versions.</p>
+          </div>
+          <div class="security-item">
+            <h4>API Key Isolation</h4>
+            <p>Read-only API keys for signal detection. Trade-only keys for execution. No withdrawal permissions ever.</p>
+          </div>
+          <div class="security-item">
+            <h4>Paper Trading Mode</h4>
+            <p>Run the full pipeline without risking real capital. Validate signals and execution logic before going live.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== FAQ ===== -->
+    <section class="section" id="faq">
+      <div class="section-inner section-narrow">
+        <div class="section-label">FAQ</div>
+        <h2 class="section-title">Common questions.</h2>
+
+        <div class="faq-list">
+          <details class="faq-item">
+            <summary>Does this guarantee profits?</summary>
+            <p>No. Past performance does not guarantee future results. The strategy shows a statistically significant edge in out-of-sample testing, but market conditions change and opportunities may decrease over time.</p>
+          </details>
+          <details class="faq-item">
+            <summary>How fast does the bot react?</summary>
+            <p>The target end-to-end latency is under 5 seconds: 1-2s for announcement detection, &lt;100ms for classification, and &lt;500ms for order submission on MEXC.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Why MEXC and not Binance for execution?</summary>
+            <p>When Binance announces a new listing, the coin isn't tradeable on Binance yet — but it's often already listed on MEXC. We buy on MEXC to capture the anticipatory pump.</p>
+          </details>
+          <details class="faq-item">
+            <summary>What happens if no opportunities appear?</summary>
+            <p>The bot simply waits. It only trades when a qualifying announcement is detected and all validation checks pass. No forced trades, no overtrading.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Can I customize the strategy parameters?</summary>
+            <p>The frozen strategy (M0) uses parameters calibrated from historical data. The dashboard shows all parameters transparently. Custom tuning is documented as future work.</p>
+          </details>
+          <details class="faq-item">
+            <summary>Is my capital safe?</summary>
+            <p>The bot uses trade-only API keys with no withdrawal permissions. Paper trading mode lets you validate everything before risking real capital. Daily loss limits and position caps provide additional protection.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== CTA ===== -->
+    <section class="section cta-section">
+      <div class="section-inner" style="text-align:center">
+        <h2 class="cta-title">Ready to see it in action?</h2>
+        <p class="cta-sub">Explore the live dashboard with real backtest data. No signup required.</p>
+        <button class="btn btn-primary btn-lg" onclick="enterDashboard()" style="margin-top:24px">
+          Open Dashboard
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10m-4-4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== FOOTER ===== -->
+    <footer class="landing-footer">
+      <div class="section-inner">
+        <div class="footer-inner">
+          <span>Announce &amp; Bounce &mdash; Thesis Project</span>
+          <span class="muted">Built for academic research. Not financial advice.</span>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <!-- ============================================================
+       DASHBOARD (hidden until user clicks "Open Dashboard")
+       ============================================================ -->
+  <div id="dashboard" class="layout" style="display:none">
+
+    <!-- ===== SIDEBAR ===== -->
+    <aside class="sidebar" id="sidebar">
+      <div class="brand">
+        <div class="brand-logo">A</div>
+        <div>
+          <strong>Announce &amp; Bounce</strong>
+          <small>Trading Bot</small>
+        </div>
+      </div>
+
+      <nav id="nav">
+        <a data-route="overview" class="active"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.2"/></svg></span>Overview</a>
+        <a data-route="backtest"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 12l4-4 3 3 5-7" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Backtest</a>
+        <a data-route="research"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="4.5" stroke="currentColor" stroke-width="1.2"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>Research</a>
+        <a data-route="trades"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>Trades</a>
+        <a data-route="system"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M8 2v2m0 8v2M2 8h2m8 0h2M3.76 3.76l1.41 1.41m5.66 5.66l1.41 1.41M3.76 12.24l1.41-1.41m5.66-5.66l1.41-1.41" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>System</a>
+        <a data-route="settings"><span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M4 6h8M4 10h5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="6" cy="6" r="1.5" stroke="currentColor" stroke-width="1.2"/><circle cx="11" cy="10" r="1.5" stroke="currentColor" stroke-width="1.2"/></svg></span>Settings</a>
+      </nav>
+
+      <div class="sidebar-foot">
+        <button class="btn btn-sm btn-ghost" onclick="exitDashboard()" style="width:100%;justify-content:center;font-size:12px">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M11 7H3m4-4L3 7l4 4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Back to Home
+        </button>
+        <div style="margin-top:12px">
+          <code id="git-head" title="git HEAD">—</code>
+          <span id="manifest-time">manifest: —</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="content">
+
+      <!-- ===== TOP BAR ===== -->
+      <div class="statusbar">
+        <button class="menu-btn" id="menu-btn" aria-label="Toggle navigation">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+
+        <span class="pill pill-paper" id="mode-pill">PAPER</span>
+
+        <span class="status-item">
+          <span class="dot dot-amber" id="bot-dot"></span>
+          <span class="label">Bot</span>
+          <span class="value" id="bot-status">backtest</span>
+        </span>
+
+        <span class="status-item">
+          <span class="label">Return</span>
+          <span class="value" id="all-time-return">—</span>
+        </span>
+
+        <span class="status-item">
+          <span class="label">Trades</span>
+          <span class="value" id="total-trades">—</span>
+        </span>
+
+        <span class="status-item">
+          <span class="dot dot-green" id="mexc-dot"></span>
+          <span class="label">MEXC</span>
+          <span class="value" id="mexc-status">connected</span>
+        </span>
+
+        <span class="spacer"></span>
+
+        <span class="status-item">
+          <span class="label">Sharpe</span>
+          <span class="value" id="sharpe-val">—</span>
+        </span>
+      </div>
+
+      <!-- ===== PAGES (same structure as before, keeping all dashboard pages) ===== -->
+      <section class="page active" id="page-overview">
+        <header class="page-header">
+          <h1>Overview</h1>
+          <p class="subtitle">Portfolio performance summary — In-Sample &amp; Out-of-Sample results.</p>
+        </header>
+
+        <div class="kpi-grid" id="overview-kpis"></div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h2>Equity Curve</h2>
+              <span class="hint" id="equity-hint">M0 category-only strategy</span>
+            </div>
+            <div class="chart-wrap" id="equity-wrap">
+              <canvas id="equityChart"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>Performance by Category</h2>
+              <span class="hint">Tier 1 categories</span>
+            </div>
+            <div id="category-breakdown"></div>
+          </div>
+        </div>
+
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h2>Exit Reason Breakdown</h2>
+              <span class="hint">TP / SL / time-stop</span>
+            </div>
+            <div id="exit-breakdown"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-header">
+              <h2>OOS Headline</h2>
+              <span class="hint" id="oos-window">—</span>
+            </div>
+            <div id="oos-summary"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-backtest">
+        <header class="page-header">
+          <h1>Backtest Results</h1>
+          <p class="subtitle">In-sample, out-of-sample, and robustness test results.</p>
+        </header>
+        <div class="kpi-grid" id="bt-kpis"></div>
+        <div class="card">
+          <div class="card-header"><h2>Robustness — Latency Sensitivity</h2><span class="hint" id="rob-note">stress tests</span></div>
+          <div class="table-wrap">
+            <table id="robustness-table">
+              <thead><tr><th>Latency (s)</th><th class="num">Trades</th><th class="num">Return %</th><th class="num">Win Rate</th><th class="num">PF</th><th class="num">Sharpe</th><th class="num">Max DD %</th></tr></thead>
+              <tbody><tr><td colspan="7" class="muted">Loading...</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="grid-2" style="margin-top:16px">
+          <div class="card">
+            <div class="card-header"><h2>Fee Sensitivity</h2><span class="hint">impact of trading fees</span></div>
+            <div class="table-wrap">
+              <table id="fee-table"><thead><tr><th>Fee / leg</th><th class="num">Trades</th><th class="num">Return %</th><th class="num">Win Rate</th><th class="num">PF</th></tr></thead>
+              <tbody><tr><td colspan="5" class="muted">Loading...</td></tr></tbody></table>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Slippage Sensitivity</h2><span class="hint">impact of execution slippage</span></div>
+            <div class="table-wrap">
+              <table id="slippage-table"><thead><tr><th>Slippage (bps)</th><th class="num">Trades</th><th class="num">Return %</th><th class="num">Win Rate</th><th class="num">PF</th></tr></thead>
+              <tbody><tr><td colspan="5" class="muted">Loading...</td></tr></tbody></table>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-header"><h2>OOS Trades</h2><span class="hint" id="oos-trades-hint">—</span></div>
+          <div class="table-wrap">
+            <table id="oos-trades-table"><thead><tr><th>Entry Time</th><th>Symbol</th><th>Category</th><th>Exit Reason</th><th class="num">Return %</th><th class="num">P&amp;L</th><th class="num">Duration</th></tr></thead>
+            <tbody><tr><td colspan="7" class="muted">Loading...</td></tr></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-research">
+        <header class="page-header"><h1>Research</h1><p class="subtitle">Sentiment analysis and event study findings.</p></header>
+        <div class="grid-2">
+          <div class="card"><div class="card-header"><h2>Sentiment Analysis</h2><span class="hint">CryptoBERT vs FinBERT</span></div><div id="sentiment-stats"></div></div>
+          <div class="card"><div class="card-header"><h2>TP/SL Calibration</h2><span class="hint">Phase 4 percentile-based</span></div><div id="calibration-stats"></div></div>
+        </div>
+        <div class="card" style="margin-top:16px"><div class="card-header"><h2>Sentiment by Category</h2><span class="hint">CryptoBERT distribution</span></div><div class="chart-wrap"><canvas id="sentimentChart"></canvas></div></div>
+        <div class="card" style="margin-top:16px"><div class="card-header"><h2>Spot Listing — MEXC Event Study</h2><span class="hint">verified pumps</span></div><div id="listing-spot-stats"></div></div>
+      </section>
+
+      <section class="page" id="page-trades">
+        <header class="page-header"><h1>Trades</h1><p class="subtitle">All executed trades from the backtest.</p></header>
+        <div class="kpi-grid" id="trades-kpis"></div>
+        <div class="card">
+          <div class="card-header"><h2>Trade Log</h2><span class="hint" id="trades-count">—</span></div>
+          <div class="table-wrap">
+            <table id="trades-table"><thead><tr><th>Entry Time</th><th>Symbol</th><th>Category</th><th>Exit</th><th class="num">Return %</th><th class="num">P&amp;L</th><th class="num">Duration</th><th class="num">Equity After</th></tr></thead>
+            <tbody><tr><td colspan="8" class="muted">Loading...</td></tr></tbody></table>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-system">
+        <header class="page-header"><h1>System</h1><p class="subtitle">Bot design, connection status, and target latency.</p></header>
+        <div class="grid-2-equal">
+          <div class="card">
+            <div class="card-header"><h2>Detection Latency</h2><span class="hint">target &lt; 5 seconds</span></div>
+            <div id="latency-stats">
+              <div class="stat-row"><span class="k">p50 (median)</span><span class="v" id="lat-p50">—</span></div>
+              <div class="stat-row"><span class="k">p95</span><span class="v" id="lat-p95">—</span></div>
+              <div class="stat-row"><span class="k">max</span><span class="v" id="lat-max">—</span></div>
+              <div class="stat-row"><span class="k">Target</span><span class="v">1-5s (Ante 2019)</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Connections</h2><span class="hint">architecture</span></div>
+            <div>
+              <div class="stat-row"><span class="k">Signal source</span><span class="v">Binance CMS API</span></div>
+              <div class="stat-row"><span class="k">Execution venue</span><span class="v">MEXC REST API</span></div>
+              <div class="stat-row"><span class="k">Poll interval</span><span class="v">1-2 seconds</span></div>
+              <div class="stat-row"><span class="k">Classification</span><span class="v">&lt; 100ms (rule-based)</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="page" id="page-settings">
+        <header class="page-header"><h1>Settings</h1><p class="subtitle">Frozen strategy parameters.</p></header>
+        <div class="grid-2-equal">
+          <div class="card">
+            <div class="card-header"><h2>Spot Listing (MEXC)</h2><span class="hint">primary signal</span></div>
+            <div>
+              <div class="stat-row"><span class="k">Take-profit</span><span class="v">+13.64%</span></div>
+              <div class="stat-row"><span class="k">Stop-loss</span><span class="v">-13.07%</span></div>
+              <div class="stat-row"><span class="k">Time-stop</span><span class="v">480 min (8h)</span></div>
+              <div class="stat-row"><span class="k">Slippage</span><span class="v">15 bps</span></div>
+            </div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Global Parameters</h2><span class="hint">risk management</span></div>
+            <div>
+              <div class="stat-row"><span class="k">Position sizing</span><span class="v">1% risk / SL</span></div>
+              <div class="stat-row"><span class="k">Max concurrent</span><span class="v">3 positions</span></div>
+              <div class="stat-row"><span class="k">Max same asset</span><span class="v">1</span></div>
+              <div class="stat-row"><span class="k">Daily loss limit</span><span class="v">5%</span></div>
+              <div class="stat-row"><span class="k">Fee per leg</span><span class="v">0.1%</span></div>
+              <div class="stat-row"><span class="k">Model</span><span class="v">M0 (category-only)</span></div>
+              <div class="stat-row"><span class="k">Mode</span><span class="v" style="color:var(--warning)">PAPER</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="margin-top:16px">
+          <div class="card-header"><h2>Excluded Categories</h2><span class="hint">based on analysis</span></div>
+          <div>
+            <div class="stat-row"><span class="k">Launchpool / Launchpad</span><span class="v muted">No significant edge (p > 0.05 at t+15m)</span></div>
+            <div class="stat-row"><span class="k">Staking / Earn</span><span class="v muted">Negative expected return</span></div>
+            <div class="stat-row"><span class="k">HODLer Airdrop</span><span class="v muted">Not a first-listing signal</span></div>
+            <div class="stat-row"><span class="k">Wallet Booster</span><span class="v muted">Not a listing signal</span></div>
+            <div class="stat-row"><span class="k">Delisting</span><span class="v muted">Forced exit trigger only</span></div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
