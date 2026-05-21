@@ -4,14 +4,19 @@
 
 data_extraction_date: "2026-05-14"
 
-# Cross-venue (MEXC) 5m OHLCV is usable from ~2025-06-01; earlier months were dropped
-# so announcement + MEXC pulls align with available intraday data.
-window_start: "2025-06-01"
+# Full window: Nov 2023 → May 2026, covering all Binance "Will List" spot announcements.
+# Two MEXC kline sources:
+#   - 1h bars from CryptoCompare (Nov 2023 → May 2026, all coins)
+#   - 5m bars from MEXC API (Jun 2025 → May 2026, 39 coins)
+# 5m bars take priority when available; 1h bars used for older coins.
+window_start: "2023-11-01"
 window_end: "2026-05-14"
 
-# ~11.5 month span: in-sample then short OOS (adjust if committee wants different cut)
-in_sample_start: "2025-06-01"
-in_sample_end: "2026-02-14"
+# IS/OOS split: ~70/30 by time
+# IS: Nov 2023 → Jun 2025 (20 months, includes TRUMP/COOKIE/WIF era)
+# OOS: Jun 2025 → May 2026 (11 months, higher-res 5m data available)
+in_sample_start: "2023-11-01"
+in_sample_end: "2025-06-01"
 
-oos_start: "2026-02-14"
+oos_start: "2025-06-01"
 oos_end: "2026-05-14"

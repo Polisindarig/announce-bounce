@@ -21,7 +21,7 @@ from scipy import stats
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from src.backtest.engine import BacktestConfig, run_backtest
+from src.backtest.engine import BacktestConfig, filter_real_tier1_events, run_backtest
 
 logger = logging.getLogger(__name__)
 DATA_DIR = Path(__file__).resolve().parents[2] / "data"
@@ -45,14 +45,12 @@ def load_data():
         (events["published_at"] >= oos_start) & (events["published_at"] <= oos_end)
     ].copy()
 
-    # Pre-filter to Tier 1
-    tier1 = {"LISTING_SPOT", "LISTING_FUTURES", "LAUNCHPOOL_LAUNCHPAD"}
-    oos_events = oos_events[oos_events["event_category"].isin(tier1)]
-    oos_events = oos_events.drop_duplicates(subset=["symbol", "published_at"])
+    # Filter to REAL Tier 1 events (catalog + title verified)
+    oos_events = filter_real_tier1_events(oos_events)
 
     logger.info("OOS window: %s → %s", oos_start.date(), oos_end.date())
-    logger.info("OOS Tier 1 events: %d", len(oos_events))
-    for cat in tier1:
+    logger.info("OOS real Tier 1 events: %d", len(oos_events))
+    for cat in oos_events["event_category"].unique():
         n = len(oos_events[oos_events["event_category"] == cat])
         logger.info("  %s: %d", cat, n)
 
@@ -60,7 +58,8 @@ def load_data():
     needed = {s + "USDT" for s in oos_events["symbol"].dropna().unique()}
     klines: dict[str, pd.DataFrame] = {}
 
-    for f in glob.glob(str(DATA_DIR / "raw" / "klines" / "*.parquet")):
+    # MEXC klines — 5-min bars first, then 1h CryptoCompare fallback
+    for f in glob.glob(str(DATA_DIR / "raw" / "mexc_klines_5m_from_2025-06" / "*.parquet")):
         pair = os.path.basename(f).replace(".parquet", "")
         if pair not in needed:
             continue
@@ -69,17 +68,31 @@ def load_data():
             df["open_time"] = pd.to_datetime(df["open_time"], utc=True)
             klines[pair] = df.sort_values("open_time")
 
-    for f in glob.glob(str(DATA_DIR / "raw" / "mexc_klines_5m_from_2025-06" / "*.parquet")):
-        pair = os.path.basename(f).replace(".parquet", "")
-        if pair not in needed:
-            continue
-        df = pd.read_parquet(f)
-        if "open_time" in df.columns:
-            df["open_time"] = pd.to_datetime(df["open_time"], utc=True)
-            if pair not in klines:
+    # Codex MEXC klines (actual MEXC API data, 60m/5m/1m)
+    codex_dir = DATA_DIR / "raw" / "mexc_klines_codex"
+    if codex_dir.exists():
+        for f in glob.glob(str(codex_dir / "*.parquet")):
+            pair = os.path.basename(f).replace(".parquet", "")
+            if pair not in needed or pair in klines:
+                continue
+            df = pd.read_parquet(f)
+            if "open_time" in df.columns:
+                df["open_time"] = pd.to_datetime(df["open_time"], utc=True)
                 klines[pair] = df.sort_values("open_time")
 
-    logger.info("Loaded %d kline pairs for OOS", len(klines))
+    # 1h CryptoCompare klines for coins still missing
+    cc_dir = DATA_DIR / "raw" / "mexc_klines_1h_cryptocompare"
+    if cc_dir.exists():
+        for f in glob.glob(str(cc_dir / "*.parquet")):
+            pair = os.path.basename(f).replace(".parquet", "")
+            if pair not in needed or pair in klines:
+                continue
+            df = pd.read_parquet(f)
+            if "open_time" in df.columns:
+                df["open_time"] = pd.to_datetime(df["open_time"], utc=True)
+                klines[pair] = df.sort_values("open_time")
+
+    logger.info("Loaded %d MEXC kline pairs for OOS (out of %d needed)", len(klines), len(needed))
     return oos_events, klines, window
 
 
