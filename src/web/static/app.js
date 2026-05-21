@@ -1,5 +1,5 @@
 /* =========================================================
-   Announce & Bounce — Dashboard (real backtest data)
+   Announce & Bounce — Bot Dashboard
    ========================================================= */
 
 const API = "/api";
@@ -22,7 +22,7 @@ const fmtUsd = (v, dp = 2) => {
 const fmtUsdSigned = (v, dp = 2) => {
   if (v == null || Number.isNaN(Number(v))) return "—";
   const n = Number(v);
-  const sign = n > 0 ? "+" : n < 0 ? "" : "";
+  const sign = n > 0 ? "+" : "";
   return sign + fmtUsd(n, dp);
 };
 
@@ -31,28 +31,18 @@ const fmtInt = (v) =>
 
 const fmtTime = (iso) => {
   if (!iso) return "—";
-  const s = String(iso);
-  return s.replace("T", " ").slice(0, 16);
+  return String(iso).replace("T", " ").slice(0, 16);
 };
 
 const shortHash = (h) => (h ? String(h).slice(0, 8) : "—");
 const colorOf = (v) => (v == null ? "" : v > 0 ? "pos" : v < 0 ? "neg" : "");
 
-/* ----- Human-readable labels ---------------------------- */
+/* ----- Labels ------------------------------------------ */
 const categoryLabel = (c) => ({
   LISTING_SPOT: "Spot Listing",
   LISTING_FUTURES: "Futures Listing",
   LAUNCHPOOL_LAUNCHPAD: "Launchpool",
-  STAKING_EARN: "Staking / Earn",
-  HODLER_AIRDROP: "HODLer Airdrop",
-  AIRDROP: "Airdrop",
   DELISTING: "Delisting",
-  MAINTENANCE_SUSPENSION: "Maintenance",
-  SECURITY_INCIDENT: "Security",
-  REGULATORY: "Regulatory",
-  FORK_UPGRADE: "Fork / Upgrade",
-  PARTNERSHIP_INTEGRATION: "Partnership",
-  OTHER: "Other",
 })[c] || c;
 
 const exitLabel = (e) => ({
@@ -93,9 +83,7 @@ async function getJson(path) {
 
 /* ----- Router ------------------------------------------- */
 const pageLoaders = {
-  overview: loadOverview,
-  backtest: loadBacktest,
-  research: loadResearch,
+  overview: loadDashboard,
   trades: loadTrades,
   system: loadSystem,
 };
@@ -153,10 +141,6 @@ async function loadStatusBar() {
   document.getElementById("all-time-return").className = "value " + colorOf(state.all_time_return_pct);
   document.getElementById("total-trades").textContent = state.n_trades_total || "—";
 
-  const mexcDot = document.getElementById("mexc-dot");
-  mexcDot.className = "dot dot-green";
-  document.getElementById("mexc-status").textContent = "connected";
-
   document.getElementById("sharpe-val").textContent =
     state.sharpe_per_trade != null ? state.sharpe_per_trade.toFixed(3) : "—";
 
@@ -167,53 +151,42 @@ async function loadStatusBar() {
 }
 
 /* =========================================================
-   PAGE: OVERVIEW
+   PAGE: DASHBOARD
    ========================================================= */
-async function loadOverview() {
-  const state = (await getJson("/bot/state")) || {};
-  const equity = (await getJson("/equity")) || [];
+async function loadDashboard() {
+  const [state, equity, oos, anns] = await Promise.all([
+    getJson("/bot/state"),
+    getJson("/equity"),
+    getJson("/oos"),
+    getJson("/announcements/recent"),
+  ]);
+
+  const s = state || {};
 
   // KPI cards
   const wrap = document.getElementById("overview-kpis");
   wrap.innerHTML = "";
-
-  wrap.appendChild(kpiCard(
-    "Final equity", fmtUsd(state.portfolio_value_usdt),
-    `start ${fmtUsd(state.starting_capital_usdt)}`, ""
-  ));
-  wrap.appendChild(kpiCard(
-    "Total return", fmtPct(state.all_time_return_pct),
-    "backtest", colorOf(state.all_time_return_pct)
-  ));
-  wrap.appendChild(kpiCard(
-    "Win rate", `${(state.win_rate_pct ?? 0).toFixed(1)}%`,
-    `${state.n_trades_total ?? 0} trades`, ""
-  ));
-  wrap.appendChild(kpiCard(
-    "Profit factor", (state.profit_factor ?? 0).toFixed(2),
-    "gross wins / gross losses", ""
-  ));
-  wrap.appendChild(kpiCard(
-    "Sharpe / trade", (state.sharpe_per_trade ?? 0).toFixed(3),
-    "mean return / std", ""
-  ));
-  wrap.appendChild(kpiCard(
-    "Max drawdown", `${(state.max_drawdown_pct ?? 0).toFixed(2)}%`,
-    "peak-to-trough", "neg"
-  ));
+  wrap.appendChild(kpiCard("Portfolio", fmtUsd(s.portfolio_value_usdt), `start ${fmtUsd(s.starting_capital_usdt)}`));
+  wrap.appendChild(kpiCard("Total Return", fmtPct(s.all_time_return_pct), `${s.n_trades_total ?? 0} trades`, colorOf(s.all_time_return_pct)));
+  wrap.appendChild(kpiCard("Win Rate", `${(s.win_rate_pct ?? 0).toFixed(1)}%`, "wins / total"));
+  wrap.appendChild(kpiCard("Profit Factor", (s.profit_factor ?? 0).toFixed(2), "gross W / gross L"));
+  wrap.appendChild(kpiCard("Sharpe / Trade", (s.sharpe_per_trade ?? 0).toFixed(3), "mean / std"));
+  wrap.appendChild(kpiCard("Max Drawdown", `${(s.max_drawdown_pct ?? 0).toFixed(2)}%`, "peak-to-trough", "neg"));
 
   // Equity curve
-  renderEquityCurve(equity);
-
-  // Category breakdown
-  renderCategoryBreakdown(state.by_category || {});
+  renderEquityCurve(equity || []);
 
   // Exit breakdown
-  renderExitBreakdown(state.by_exit_reason || {});
+  renderExitBreakdown(s.by_exit_reason || {});
+
+  // Announcement feed
+  renderDashboardAnnouncements(anns || []);
 
   // OOS summary
-  const oos = await getJson("/oos");
   renderOosSummary(oos);
+
+  // Category breakdown
+  renderCategoryBreakdown(s.by_category || {});
 }
 
 function renderEquityCurve(points) {
@@ -266,29 +239,6 @@ function renderEquityCurve(points) {
   });
 }
 
-function renderCategoryBreakdown(cats) {
-  const wrap = document.getElementById("category-breakdown");
-  if (!cats || !Object.keys(cats).length) {
-    wrap.innerHTML = `<div class="muted-block">No category data.</div>`;
-    return;
-  }
-  wrap.innerHTML = Object.entries(cats)
-    .sort((a, b) => b[1].total_pnl - a[1].total_pnl)
-    .map(([cat, d]) => `
-      <div class="stat-row">
-        <span class="k">
-          <strong>${categoryLabel(cat)}</strong>
-          <span class="muted" style="margin-left:8px">${d.n} trades</span>
-        </span>
-        <span class="v">
-          <span class="${colorOf(d.mean_return)}">${(d.mean_return * 100).toFixed(2)}% avg</span>
-          &nbsp;·&nbsp;${(d.win_rate * 100).toFixed(0)}% win
-          &nbsp;·&nbsp;<span class="${colorOf(d.total_pnl)}">${fmtUsdSigned(d.total_pnl)}</span>
-        </span>
-      </div>`)
-    .join("");
-}
-
 function renderExitBreakdown(exits) {
   const wrap = document.getElementById("exit-breakdown");
   if (!exits || !Object.keys(exits).length) {
@@ -306,6 +256,35 @@ function renderExitBreakdown(exits) {
         <span class="v ${colorOf(d.mean_return)}">${(d.mean_return * 100).toFixed(2)}% avg</span>
       </div>`)
     .join("");
+}
+
+function renderDashboardAnnouncements(anns) {
+  const tbody = document.querySelector("#dash-ann-table tbody");
+  const hint = document.getElementById("dash-ann-count");
+  if (!anns.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="muted">No announcements.</td></tr>`;
+    return;
+  }
+
+  const buys = anns.filter(a => a.decision === "BUY").length;
+  const skips = anns.filter(a => a.decision === "SKIP").length;
+  if (hint) hint.textContent = `${buys} traded · ${skips} skipped`;
+
+  const decBadge = (d) => ({
+    BUY: "badge-buy",
+    SELL: "badge-sell",
+    SKIP: "badge-skip",
+    WATCH: "badge-info",
+  })[d] || "badge-skip";
+
+  tbody.innerHTML = anns.map((a) => `
+    <tr>
+      <td class="num">${fmtTime(a.time)}</td>
+      <td><strong>${a.asset}</strong></td>
+      <td class="muted" style="max-width:280px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${a.title}">${a.title}</td>
+      <td><span class="badge ${decBadge(a.decision)}">${a.decision}</span></td>
+      <td class="muted">${a.reason}</td>
+    </tr>`).join("");
 }
 
 function renderOosSummary(oos) {
@@ -334,226 +313,26 @@ function renderOosSummary(oos) {
     </div>`;
 }
 
-/* =========================================================
-   PAGE: BACKTEST
-   ========================================================= */
-async function loadBacktest() {
-  const [bt, oos, rob] = await Promise.all([
-    getJson("/backtest/m0"),
-    getJson("/oos"),
-    getJson("/latency/scenarios"),
-  ]);
-
-  // KPIs — M0 vs OOS comparison
-  const kpis = document.getElementById("bt-kpis");
-  kpis.innerHTML = "";
-  const s = bt?.summary || {};
-  const os = oos?.summary || {};
-
-  kpis.appendChild(kpiCard("IS trades", fmtInt(s.n_trades), "full sample", ""));
-  kpis.appendChild(kpiCard("IS return", fmtPct(s.total_return_pct), "in-sample", colorOf(s.total_return_pct)));
-  kpis.appendChild(kpiCard("IS Sharpe", (s.sharpe_per_trade || 0).toFixed(3), "per trade", ""));
-  kpis.appendChild(kpiCard("OOS trades", fmtInt(os.n_trades), oos?.window?.oos_start + " →", ""));
-  kpis.appendChild(kpiCard("OOS return", fmtPct(os.total_return_pct), "out-of-sample", colorOf(os.total_return_pct)));
-  kpis.appendChild(kpiCard("OOS PF", (os.profit_factor || 0).toFixed(2), "profit factor", ""));
-
-  // Robustness table
-  const scenarios = rob?.scenarios || [];
-  const tbody = document.querySelector("#robustness-table tbody");
-  if (!scenarios.length) {
-    tbody.innerHTML = `<tr><td colspan="7" class="muted">No robustness data.</td></tr>`;
-  } else {
-    document.getElementById("rob-note").textContent = rob.note ? rob.note.slice(0, 80) : "latency stress tests";
-    tbody.innerHTML = scenarios.map((sc) => `
-      <tr>
-        <td>${sc.latency_seconds}s</td>
-        <td class="num">${sc.n_trades}</td>
-        <td class="num ${colorOf(sc.total_return_pct)}">${fmtPct(sc.total_return_pct)}</td>
-        <td class="num">${sc.win_rate?.toFixed(1) || "—"}%</td>
-        <td class="num">${sc.profit_factor?.toFixed(2) || "—"}</td>
-        <td class="num">${sc.sharpe_per_trade?.toFixed(3) || "—"}</td>
-        <td class="num">${sc.max_drawdown_pct?.toFixed(2) || "—"}%</td>
-      </tr>`).join("");
+function renderCategoryBreakdown(cats) {
+  const wrap = document.getElementById("category-breakdown");
+  if (!cats || !Object.keys(cats).length) {
+    wrap.innerHTML = `<div class="muted-block">No category data.</div>`;
+    return;
   }
-
-  // Fee sensitivity table
-  const feeScenarios = rob?.fee_scenarios || [];
-  const feeTbody = document.querySelector("#fee-table tbody");
-  if (!feeScenarios.length) {
-    feeTbody.innerHTML = `<tr><td colspan="5" class="muted">No fee data.</td></tr>`;
-  } else {
-    feeTbody.innerHTML = feeScenarios.map((sc) => `
-      <tr>
-        <td>${sc.fee_per_leg_pct?.toFixed(2) || "—"}%</td>
-        <td class="num">${sc.n_trades}</td>
-        <td class="num ${colorOf(sc.total_return_pct)}">${fmtPct(sc.total_return_pct)}</td>
-        <td class="num">${sc.win_rate?.toFixed(1) || "—"}%</td>
-        <td class="num">${sc.profit_factor?.toFixed(2) || "—"}</td>
-      </tr>`).join("");
-  }
-
-  // Slippage sensitivity table
-  const slipScenarios = rob?.slippage_scenarios || [];
-  const slipTbody = document.querySelector("#slippage-table tbody");
-  if (!slipScenarios.length) {
-    slipTbody.innerHTML = `<tr><td colspan="5" class="muted">No slippage data.</td></tr>`;
-  } else {
-    slipTbody.innerHTML = slipScenarios.map((sc) => `
-      <tr>
-        <td>${sc.slippage_bps} bps</td>
-        <td class="num">${sc.n_trades}</td>
-        <td class="num ${colorOf(sc.total_return_pct)}">${fmtPct(sc.total_return_pct)}</td>
-        <td class="num">${sc.win_rate?.toFixed(1) || "—"}%</td>
-        <td class="num">${sc.profit_factor?.toFixed(2) || "—"}</td>
-      </tr>`).join("");
-  }
-
-  // OOS trades
-  const oosTradesEl = document.querySelector("#oos-trades-table tbody");
-  const oosTrades = oos?.trades || [];
-  document.getElementById("oos-trades-hint").textContent = `${oosTrades.length} trades`;
-  if (!oosTrades.length) {
-    oosTradesEl.innerHTML = `<tr><td colspan="7" class="muted">No OOS trades.</td></tr>`;
-  } else {
-    oosTradesEl.innerHTML = oosTrades.map((t) => {
-      const ret = (t.return_pct || 0) * 100;
-      return `
-      <tr>
-        <td class="num">${fmtTime(t.entry_time)}</td>
-        <td><strong>${t.symbol}</strong></td>
-        <td>${categoryLabel(t.category)}</td>
-        <td><span class="badge ${exitBadge(t.exit_reason)}">${exitLabel(t.exit_reason)}</span></td>
-        <td class="num ${colorOf(ret)}">${fmtPct(ret)}</td>
-        <td class="num ${colorOf(t.pnl)}">${fmtUsdSigned(t.pnl)}</td>
-        <td class="num muted">${t.duration_min?.toFixed(0) || "—"}m</td>
-      </tr>`;
-    }).join("");
-  }
-}
-
-/* =========================================================
-   PAGE: RESEARCH
-   ========================================================= */
-async function loadResearch() {
-  const [sentiment, eventStudy, listingSpot] = await Promise.all([
-    getJson("/sentiment"),
-    getJson("/event-study"),
-    getJson("/event-study/listing-spot"),
-  ]);
-
-  // Sentiment stats
-  const sentWrap = document.getElementById("sentiment-stats");
-  if (!sentiment || !sentiment.categories) {
-    sentWrap.innerHTML = `<div class="muted-block">No sentiment data.</div>`;
-  } else {
-    const cats = sentiment.categories;
-    const total = sentiment.total_announcements || 0;
-    sentWrap.innerHTML = `
-      <div class="stat-row"><span class="k">Total analyzed</span><span class="v">${fmtInt(total)}</span></div>
-      <div class="stat-row"><span class="k">Primary model</span><span class="v">CryptoBERT (ElKulako)</span></div>
-      <div class="stat-row"><span class="k">Secondary model</span><span class="v">FinBERT (ProsusAI)</span></div>
-      <div class="stat-row"><span class="k">M0 vs M1 finding</span><span class="v muted">M0 = M1 (sentiment adds no value for Tier 1)</span></div>
-    `;
-
-    // Sentiment chart
-    renderSentimentChart(cats);
-  }
-
-  // TP/SL calibration — show frozen params from decision engine
-  const calWrap = document.getElementById("calibration-stats");
-  const cal = eventStudy?.tp_sl_calibration;
-  if (!cal) {
-    calWrap.innerHTML = `<div class="muted-block">No calibration data.</div>`;
-  } else {
-    // Show which categories have calibration data and their horizon stats
-    const rows = Object.entries(cal).map(([cat, horizons]) => {
-      const hKeys = Object.keys(horizons).slice(0, 3);
-      const detail = hKeys.map(h => {
-        const d = horizons[h];
-        return `${h}: ${d.n || "—"} events`;
-      }).join(", ");
-      return `
+  wrap.innerHTML = Object.entries(cats)
+    .sort((a, b) => b[1].total_pnl - a[1].total_pnl)
+    .map(([cat, d]) => `
       <div class="stat-row">
-        <span class="k"><strong>${categoryLabel(cat)}</strong></span>
-        <span class="v muted">${detail}</span>
-      </div>`;
-    }).join("");
-    calWrap.innerHTML = `
-      ${rows}
-      <div class="stat-row" style="margin-top:8px;border-top:1px solid #262C3A;padding-top:8px">
-        <span class="k">Method</span>
-        <span class="v muted">p70 MFE (TP) / p30 MAE (SL), clamped</span>
-      </div>`;
-  }
-
-  // LISTING_SPOT MEXC
-  const lsWrap = document.getElementById("listing-spot-stats");
-  if (!listingSpot || !Object.keys(listingSpot).length) {
-    lsWrap.innerHTML = `<div class="muted-block">No LISTING_SPOT event study data.</div>`;
-  } else {
-    const mp = listingSpot.manual_verified_pump || {};
-    const nManual = listingSpot.n_manual_events || mp.n || "—";
-    const nKline = listingSpot.n_kline_events || "—";
-    lsWrap.innerHTML = `
-      <div class="stat-row"><span class="k">Verified pumps (manual)</span><span class="v">${nManual}</span></div>
-      <div class="stat-row"><span class="k">MEXC kline-matched</span><span class="v">${nKline}</span></div>
-      <div class="stat-row"><span class="k">Mean pump</span><span class="v pos">${mp.mean != null ? (mp.mean * 100).toFixed(1) + "%" : "—"}</span></div>
-      <div class="stat-row"><span class="k">Median pump</span><span class="v pos">${mp.median != null ? (mp.median * 100).toFixed(1) + "%" : "—"}</span></div>
-      <div class="stat-row"><span class="k">Execution venue</span><span class="v">MEXC (pre-listed)</span></div>
-      <div class="stat-row"><span class="k">Rationale</span><span class="v muted">${listingSpot.rationale || "Coin not yet on Binance at announcement"}</span></div>
-    `;
-  }
-}
-
-function renderSentimentChart(cats) {
-  const ctx = document.getElementById("sentimentChart");
-  if (!ctx) return;
-  if (ctx.chart) ctx.chart.destroy();
-
-  const labels = [];
-  const bullish = [];
-  const neutral = [];
-  const bearish = [];
-
-  for (const [cat, d] of Object.entries(cats)) {
-    if (!d.cryptobert) continue;
-    labels.push(categoryLabel(cat));
-    bullish.push(d.cryptobert.bullish_pct || 0);
-    neutral.push(d.cryptobert.neutral_pct || 0);
-    bearish.push(d.cryptobert.bearish_pct || 0);
-  }
-
-  ctx.chart = new Chart(ctx, {
-    type: "bar",
-    data: {
-      labels,
-      datasets: [
-        { label: "Bullish %", data: bullish, backgroundColor: "#30A46C" },
-        { label: "Neutral %", data: neutral, backgroundColor: "#5A6178" },
-        { label: "Bearish %", data: bearish, backgroundColor: "#E5484D" },
-      ],
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: { labels: { color: "#A1A7B5" } },
-      },
-      scales: {
-        x: {
-          stacked: true,
-          grid: { color: "#262C3A" },
-          ticks: { color: "#5A6178", font: { size: 10 }, maxRotation: 45 },
-        },
-        y: {
-          stacked: true,
-          grid: { color: "#262C3A" },
-          ticks: { color: "#5A6178", callback: (v) => v + "%" },
-          max: 100,
-        },
-      },
-    },
-  });
+        <span class="k">
+          <strong>${categoryLabel(cat)}</strong>
+          <span class="muted" style="margin-left:8px">${d.n} trades</span>
+        </span>
+        <span class="v">
+          <span class="${colorOf(d.mean_return)}">${(d.mean_return * 100).toFixed(2)}% avg</span>
+          &nbsp;·&nbsp;<span class="${colorOf(d.total_pnl)}">${fmtUsdSigned(d.total_pnl)}</span>
+        </span>
+      </div>`)
+    .join("");
 }
 
 /* =========================================================
@@ -573,12 +352,12 @@ async function loadTrades() {
   const best = trades.reduce((a, t) => Math.max(a, (t.return_pct || -1) * 100), -100);
   const worst = trades.reduce((a, t) => Math.min(a, (t.return_pct || 1) * 100), 100);
 
-  kpis.appendChild(kpiCard("Total trades", fmtInt(trades.length), "backtest"));
-  kpis.appendChild(kpiCard("Win rate", `${s.win_rate?.toFixed(1) || "—"}%`, `${wins}W / ${losses}L`));
+  kpis.appendChild(kpiCard("Total Trades", fmtInt(trades.length), `${wins}W / ${losses}L`));
+  kpis.appendChild(kpiCard("Win Rate", `${s.win_rate?.toFixed(1) || "—"}%`, ""));
   kpis.appendChild(kpiCard("Total P&L", fmtUsdSigned(totalPnl), "net of fees", colorOf(totalPnl)));
-  kpis.appendChild(kpiCard("Best trade", fmtPct(best), "single trade peak", "pos"));
-  kpis.appendChild(kpiCard("Worst trade", fmtPct(worst), "single trade trough", "neg"));
-  kpis.appendChild(kpiCard("Avg duration", `${s.avg_duration_min?.toFixed(0) || "—"} min`, "per trade"));
+  kpis.appendChild(kpiCard("Best Trade", fmtPct(best), "", "pos"));
+  kpis.appendChild(kpiCard("Worst Trade", fmtPct(worst), "", "neg"));
+  kpis.appendChild(kpiCard("Avg Duration", `${s.avg_duration_min?.toFixed(0) || "—"} min`, ""));
 
   document.getElementById("trades-count").textContent = `${trades.length} trades`;
 
@@ -588,7 +367,6 @@ async function loadTrades() {
     return;
   }
 
-  // Sort newest first
   const sorted = [...trades].sort((a, b) => (b.entry_time || "").localeCompare(a.entry_time || ""));
   tbody.innerHTML = sorted.map((t) => {
     const ret = (t.return_pct || 0) * 100;
@@ -626,14 +404,6 @@ async function loadSystem() {
       : "—";
 }
 
-/* ----- Mobile menu -------------------------------------- */
-function initMenu() {
-  const btn = document.getElementById("menu-btn");
-  const sidebar = document.getElementById("sidebar");
-  if (!btn || !sidebar) return;
-  btn.addEventListener("click", () => sidebar.classList.toggle("open"));
-}
-
 /* =========================================================
    LANDING / DASHBOARD toggle
    ========================================================= */
@@ -669,20 +439,19 @@ async function loadHeroStats() {
   }
 }
 
-/* ----- Landing mobile menu ----- */
-function initLandingMenu() {
-  const btn = document.getElementById("landing-menu-btn");
-  if (!btn) return;
-  btn.addEventListener("click", () => {
-    const links = document.querySelector(".nav-links");
-    if (links) links.classList.toggle("mobile-open");
-  });
+/* ----- Mobile menu ----- */
+function initMenu() {
+  const btn = document.getElementById("menu-btn");
+  const sidebar = document.getElementById("sidebar");
+  if (btn && sidebar) {
+    btn.addEventListener("click", () => sidebar.classList.toggle("open"));
+  }
 }
 
 /* ----- Boot --------------------------------------------- */
 async function boot() {
   const hash = location.hash.slice(1);
-  const isDashboardRoute = ["overview", "backtest", "research", "trades", "system", "settings"].includes(hash);
+  const isDashboardRoute = ["overview", "trades", "system"].includes(hash);
 
   if (isDashboardRoute) {
     document.getElementById("landing").style.display = "none";
@@ -694,7 +463,6 @@ async function boot() {
     initRouter();
     initMenu();
     loadHeroStats();
-    initLandingMenu();
   }
 }
 

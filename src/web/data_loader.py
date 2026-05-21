@@ -217,13 +217,18 @@ def recent_trades() -> list[dict[str, Any]]:
 
 
 def recent_announcements() -> list[dict[str, Any]]:
-    """Build announcement feed from backtest trades."""
-    trades = backtest_trades("m0")
-    feed = []
+    """Build announcement feed from events.parquet with BUY/SKIP decisions."""
     _cat_labels = {
         "LISTING_SPOT": "Spot Listing",
         "LISTING_FUTURES": "Futures Listing",
         "LAUNCHPOOL_LAUNCHPAD": "Launchpool",
+        "STAKING_EARN": "Staking / Earn",
+        "DELISTING": "Delisting",
+        "MAINTENANCE_SUSPENSION": "Maintenance",
+        "REGULATORY": "Regulatory",
+        "SECURITY_INCIDENT": "Security",
+        "PARTNERSHIP_INTEGRATION": "Partnership",
+        "OTHER": "Other",
     }
     _exit_labels = {
         "tp_hit": "Take Profit",
@@ -231,20 +236,109 @@ def recent_announcements() -> list[dict[str, Any]]:
         "sl_hit_pessimistic": "Stop Loss",
         "time_stop": "Time Stop",
     }
-    for t in trades:
-        cat_raw = t.get("category", "")
-        exit_raw = t.get("exit_reason", "")
-        ret = t.get("return_pct", 0) * 100
-        feed.append({
+
+    traded_symbols: dict[str, dict] = {}
+    for t in backtest_trades("m0"):
+        sym = t.get("symbol", "")
+        if sym and sym not in traded_symbols:
+            exit_raw = t.get("exit_reason", "")
+            ret = t.get("return_pct", 0) * 100
+            traded_symbols[sym] = {
+                "exit": _exit_labels.get(exit_raw, exit_raw),
+                "ret": ret,
+            }
+
+    events_path = PROCESSED / "events.parquet"
+    if not events_path.exists():
+        return [{
             "time": t.get("entry_time", ""),
-            "category": _cat_labels.get(cat_raw, cat_raw),
+            "category": _cat_labels.get(t.get("category", ""), t.get("category", "")),
             "asset": t.get("symbol", ""),
-            "title": f"{_cat_labels.get(cat_raw, cat_raw)} — {t.get('symbol', '')}",
+            "title": f"Spot Listing — {t.get('symbol', '')}",
             "decision": "BUY",
-            "reason": f"{_exit_labels.get(exit_raw, exit_raw)} · {ret:+.2f}%",
+            "reason": f"{traded_symbols[t['symbol']]['exit']} · {traded_symbols[t['symbol']]['ret']:+.2f}%",
             "detection_latency_s": 2.4,
-        })
-    return feed[:40]
+        } for t in backtest_trades("m0") if t.get("symbol") in traded_symbols]
+
+    events = pd.read_parquet(events_path)
+    # Bot active since 2025-01-01
+    events = events[events["t_0"] >= "2025-01-01"]
+    events = events.sort_values("t_0", ascending=False)
+
+    seen_titles: set[str] = set()
+
+    def classify(row: pd.Series) -> dict[str, Any] | None:
+        title = str(row.get("title", ""))
+        if title in seen_titles:
+            return None
+        seen_titles.add(title)
+
+        cat = str(row.get("event_category", ""))
+        sym = str(row.get("symbol", ""))
+        t0 = str(row.get("t_0", ""))[:19]
+        cat_label = _cat_labels.get(cat, cat or "Unknown")
+        title_lower = title.lower()
+
+        is_listing_title = any(s in title_lower for s in (
+            "will list", "will add", "futures will launch",
+            "perpetual contract", "vote to list",
+        ))
+
+        # Listing title overrides wrong category (data quality issue)
+        if sym in traded_symbols and is_listing_title:
+            info = traded_symbols[sym]
+            decision = "BUY"
+            reason = f"{info['exit']} · {info['ret']:+.2f}%"
+        elif is_listing_title:
+            decision = "SKIP"
+            reason = "Not tradeable on MEXC"
+        elif cat == "DELISTING":
+            is_delist_title = any(s in title_lower for s in ("will delist", "monitoring tag"))
+            if is_delist_title:
+                decision = "SELL"
+                reason = "Delisting detected — forced exit"
+            else:
+                decision = "SKIP"
+                reason = "Non-trading category"
+        elif cat == "LISTING_SPOT":
+            decision = "SKIP"
+            reason = "Not tradeable on MEXC"
+        elif cat == "LISTING_FUTURES":
+            decision = "SKIP"
+            reason = "Futures only — not first listing"
+        elif cat == "LAUNCHPOOL_LAUNCHPAD":
+            decision = "SKIP"
+            reason = "No significant edge (p > 0.05)"
+        elif cat == "STAKING_EARN":
+            decision = "SKIP"
+            reason = "Not a first-listing signal"
+        else:
+            decision = "SKIP"
+            reason = "Non-trading category"
+
+        return {
+            "time": t0,
+            "category": cat_label,
+            "asset": sym,
+            "title": title[:120],
+            "decision": decision,
+            "reason": reason,
+        }
+
+    buy_feed: list[dict[str, Any]] = []
+    skip_feed: list[dict[str, Any]] = []
+
+    for _, row in events.iterrows():
+        item = classify(row)
+        if not item:
+            continue
+        if item["decision"] == "BUY":
+            buy_feed.append(item)
+        elif len(skip_feed) < 80:
+            skip_feed.append(item)
+
+    feed = sorted(buy_feed + skip_feed, key=lambda x: x["time"], reverse=True)
+    return feed
 
 
 def equity_curve() -> list[dict[str, Any]]:
