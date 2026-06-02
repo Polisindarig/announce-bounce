@@ -4,14 +4,17 @@ Two model variants (pre-registered ablation, Phase 5.5):
     M0: category-only (no sentiment)
     M1: category + CryptoBERT sentiment bucket
 
-Parameters frozen from Phase 4 in-sample calibration:
-    - TP/SL: percentile-based (p70 favorable / p30 adverse, clamped)
-    - Time-stop: category-specific horizon
-    - Position sizing: 1% account risk / SL_fraction, capped at 0.5% of 1m volume
+Parameters frozen from the in-sample grid-search (1,408 variants over the
+101-event in-sample universe; see Section 4.6 of the thesis):
+    - Take-profit:    +25%
+    - Stop-loss:      -8%
+    - Holding period: 1 hour
+    - Slippage proxy: 1% on entry
+    - Position sizing: 10% of current equity per trade (production)
 
 Execution venues:
-    - LISTING_SPOT → MEXC (coin not yet on Binance at announcement)
-    - All others   → Binance
+    - All bullish trades → MEXC (Binance is only the signal source)
+    - Bearish forced-exit → Binance (closes any open spot position there)
 """
 
 from __future__ import annotations
@@ -48,41 +51,44 @@ class TradeDecision:
     model_variant: str = "M0"
 
 
-# ── Frozen calibration table (Phase 4 in-sample) ──────────────────────────
-# Format: {category: (tp_pct, sl_pct, time_stop_minutes, venue)}
+# Frozen grid-search optimum applied uniformly to all bullish categories.
+_BULLISH_PARAMS = {
+    "tp": 0.25,
+    "sl": 0.08,
+    "time_stop_min": 60,
+    "venue": Venue.MEXC,
+}
 
 CALIBRATION_TABLE = {
-    Category.LISTING_SPOT: {
-        "tp": 0.15,          # p30 of MFE = 22.5%, conservative at 15%
-        "sl": 0.12,          # capped at project-plan max 8% → relaxed to 12% for listings
-        "time_stop_min": 480,  # 8 hours — pump window is 1-4h, buffer for stragglers
-        "venue": Venue.MEXC,
-    },
-    Category.LISTING_FUTURES: {
-        "tp": 0.07,          # p70 favorable at t+1m: 7.2%
-        "sl": 0.03,          # p30 adverse at t+1m: 3.2%
-        "time_stop_min": 60,   # 1 hour — short-lived momentum
-        "venue": Venue.BINANCE,
-    },
-    Category.LAUNCHPOOL_LAUNCHPAD: {
-        "tp": 0.10,          # p70 favorable at t+5m: 10.3%
-        "sl": 0.03,          # p30 adverse: conservative
-        "time_stop_min": 60,
-        "venue": Venue.BINANCE,
-    },
-    # STAKING_EARN removed from trading: Phase 5 backtest showed
-    # avg return -0.25% with 20% win rate (800 trades).
-    # Edge too small to cover fees + slippage. Documented as finding.
+    Category.LISTING_SPOT:        _BULLISH_PARAMS,
+    Category.LISTING_FUTURES:     _BULLISH_PARAMS,
+    Category.LAUNCHPOOL_LAUNCHPAD: _BULLISH_PARAMS,
+    Category.HODLER_AIRDROP:      _BULLISH_PARAMS,
 }
 
-# Categories that trigger forced exit of open positions
+# Slippage proxy applied at entry by the execution layer (1% of entry price).
+ENTRY_SLIPPAGE_PCT = 0.01
+
+# Production position sizing: 10% of current account equity per trade
+# (compounding). The OOS backtest in Section 5.2.3 uses a fixed $1,000-per-trade
+# allocation as a conservative lower bound; see Section 4.7.
+PRODUCTION_SIZE_PCT_EQUITY = 0.10
+
+# Categories that trigger forced exit of open positions.
+# MONITORING_TAG is treated as an early-warning bearish signal: empirically
+# (Section 5.3.2) the announcement precedes a sustained negative drift, and
+# 29/64 OOS delistings were preceded by a monitoring-tag with a median lead
+# time of 42 days, so exiting on the tag captures most of the downside before
+# the eventual delisting shock.
 FORCED_EXIT_CATEGORIES = {
     Category.DELISTING,
+    Category.MONITORING_TAG,
 }
 
-# Tier 2 — skip (no trade)
+# Tier 2 — skip (no new trade)
 SKIP_CATEGORIES = {
     Category.DELISTING,
+    Category.MONITORING_TAG,
     Category.SECURITY_INCIDENT,
     Category.REGULATORY,
     Category.MAINTENANCE_SUSPENSION,
@@ -120,8 +126,8 @@ def decide(
     if cat in SKIP_CATEGORIES:
         return _skip(symbol, f"tier2_skip:{cat.value}")
 
-    # ── HODLER_AIRDROP / AIRDROP → skip (not tradable with this strategy) ──
-    if cat in (Category.HODLER_AIRDROP, Category.AIRDROP):
+    # ── AIRDROP (non-HODLer) → skip ──
+    if cat == Category.AIRDROP:
         return _skip(symbol, f"airdrop_skip:{cat.value}")
 
     # ── Stablecoin filter — no pump expected ──
@@ -137,20 +143,13 @@ def decide(
     if model_variant == "M1" and sentiment_score < -0.33:
         return _skip(symbol, f"m1_negative_sentiment:{cat.value}")
 
-    # ── Position sizing: 1% risk / SL, clamped ──
-    risk_fraction = 0.01  # 1% of equity at risk
-    sl = params["sl"]
-    notional = (account_equity * risk_fraction) / sl if sl > 0 else 0
-    size_pct = notional / account_equity if account_equity > 0 else 0
-    size_pct = min(size_pct, 0.25)  # max 25% of equity per trade
-
     return TradeDecision(
         symbol=symbol,
         direction=Direction.LONG,
         venue=params["venue"],
-        size_pct_equity=round(size_pct, 4),
+        size_pct_equity=PRODUCTION_SIZE_PCT_EQUITY,
         take_profit_pct=params["tp"],
-        stop_loss_pct=sl,
+        stop_loss_pct=params["sl"],
         time_stop=timedelta(minutes=params["time_stop_min"]),
         rationale=f"long:{cat.value}",
         category=cat.value,
@@ -159,7 +158,7 @@ def decide(
 
 
 STABLECOINS = {
-    "USDT", "USDC", "BUSD", "DAI", "TUSD", "USDP", "GUSD", "FRAX",
+    "USDT", "USDC", "BUSD", "DAI", "TUSD", "USDP", "GUSD",
     "USDE", "USDS", "RLUSD", "FDUSD", "PYUSD", "EURC", "AEUR",
     "UST", "USTC", "USDD", "CEUR", "CUSD",
 }

@@ -1,0 +1,1191 @@
+/* ============================================================
+   enhancements.css v2 — premium polish layer
+   Cursor spotlight · animated grid · 3D tilt · magnetic CTA ·
+   text shimmer · live ticker · section masks · pulse indicators
+   ============================================================ */
+
+/* ---------- 0. PAGE-WIDE CURSOR SPOTLIGHT ---------- */
+.lv2-root {
+  --cursor-x: 50%;
+  --cursor-y: 30%;
+  position: relative;
+}
+.lv2-root::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    600px circle at var(--cursor-x) var(--cursor-y),
+    rgba(255, 107, 53, 0.06),
+    transparent 40%
+  );
+  z-index: 1;
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+}
+.lv2-root.cursor-active::before { opacity: 1; }
+
+/* ---------- 1. AMBIENT HERO GLOW (kept) ---------- */
+.lv2-hero {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+}
+.lv2-hero::before {
+  content: "";
+  position: absolute;
+  inset: -20% -10% auto auto;
+  width: 70vw;
+  height: 70vw;
+  max-width: 900px;
+  max-height: 900px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(255, 107, 53, 0.20) 0%,
+    rgba(255, 107, 53, 0.06) 35%,
+    transparent 65%
+  );
+  filter: blur(40px);
+  z-index: -1;
+  pointer-events: none;
+  animation: lv2-glow-drift 18s ease-in-out infinite alternate;
+}
+@keyframes lv2-glow-drift {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  100% { transform: translate(-6%, 4%) scale(1.08); opacity: 1; }
+}
+
+/* ---------- 1b. ANIMATED DOTTED GRID ON HERO ---------- */
+.lv2-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle, rgba(244, 244, 240, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: radial-gradient(
+    ellipse 80% 60% at 50% 40%,
+    #000 30%,
+    transparent 80%
+  );
+  -webkit-mask-image: radial-gradient(
+    ellipse 80% 60% at 50% 40%,
+    #000 30%,
+    transparent 80%
+  );
+  animation: lv2-grid-drift 24s linear infinite;
+}
+@keyframes lv2-grid-drift {
+  0%   { background-position: 0 0; }
+  100% { background-position: 28px 28px; }
+}
+
+/* ---------- 2. HERO TITLE ENTRANCE ---------- */
+.lv2-hero-eyebrow,
+.lv2-hero-title,
+.lv2-hero-lede,
+.lv2-hero-actions {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: lv2-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+.lv2-hero-eyebrow { animation-delay: 0.05s; }
+.lv2-hero-title   { animation-delay: 0.18s; }
+.lv2-hero-lede    { animation-delay: 0.34s; }
+.lv2-hero-actions { animation-delay: 0.48s; }
+
+@keyframes lv2-rise {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- 2b. ANIMATED GRADIENT SHIMMER ON TITLE EM ---------- */
+.lv2-hero-title em {
+  background: linear-gradient(
+    90deg,
+    var(--lv2-accent) 0%,
+    #FFB996 40%,
+    var(--lv2-accent) 60%,
+    #FFB996 80%,
+    var(--lv2-accent) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: lv2-shimmer 6s linear infinite;
+}
+@keyframes lv2-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Section titles get a softer version */
+.lv2-section-title em {
+  background: linear-gradient(
+    90deg,
+    var(--lv2-accent),
+    #FFB996,
+    var(--lv2-accent)
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: lv2-shimmer 8s linear infinite;
+}
+
+/* ---------- 3. STAT BLOCKS (hero side) ---------- */
+.lv2-stat-block {
+  opacity: 0;
+  transform: translateY(18px);
+  animation: lv2-rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+  transition: transform 0.4s ease, background 0.4s ease, border-color 0.4s ease;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  position: relative;
+  border-left: 1px solid transparent;
+}
+.lv2-stat-block:nth-of-type(1) { animation-delay: 0.55s; }
+.lv2-stat-block:nth-of-type(2) { animation-delay: 0.70s; }
+.lv2-stat-block:nth-of-type(3) { animation-delay: 0.85s; }
+
+.lv2-stat-block:hover {
+  background: rgba(255, 107, 53, 0.05);
+  border-left-color: var(--lv2-accent);
+  transform: translateX(6px);
+}
+.lv2-stat-block .lv2-stat-value {
+  display: inline-block;
+  transition: text-shadow 0.4s ease;
+}
+.lv2-stat-block:hover .lv2-stat-value.is-accent,
+.lv2-stat-block:hover .lv2-stat-value.is-pos {
+  text-shadow: 0 0 28px rgba(255, 107, 53, 0.55);
+}
+
+/* ---------- 4. MAGNETIC CTA BUTTON ---------- */
+.lv2-cta {
+  position: relative;
+  transition: box-shadow 0.3s ease;
+  will-change: transform;
+}
+.lv2-cta::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    var(--lv2-accent),
+    #FFB996,
+    var(--lv2-accent)
+  );
+  background-size: 200% 200%;
+  opacity: 0;
+  z-index: -1;
+  filter: blur(14px);
+  transition: opacity 0.4s ease;
+  animation: lv2-shimmer 4s linear infinite;
+}
+.lv2-cta:hover::before { opacity: 0.7; }
+.lv2-cta .lv2-cta-arrow {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.lv2-cta:hover .lv2-cta-arrow { transform: translateX(8px); }
+
+/* ---------- 5. LIVE TICKER (injected by JS) ---------- */
+.lv2-ticker {
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--lv2-rule);
+  border-bottom: 1px solid var(--lv2-rule);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 107, 53, 0.02),
+    rgba(0, 0, 0, 0)
+  );
+  font-family: var(--lv2-font-mono);
+  font-size: 0.78rem;
+  color: var(--lv2-ink-muted);
+  letter-spacing: 0.04em;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  margin-block: 0;
+}
+.lv2-ticker::before,
+.lv2-ticker::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 80px;
+  z-index: 2;
+  pointer-events: none;
+}
+.lv2-ticker::before {
+  left: 0;
+  background: linear-gradient(90deg, var(--lv2-bg), transparent);
+}
+.lv2-ticker::after {
+  right: 0;
+  background: linear-gradient(-90deg, var(--lv2-bg), transparent);
+}
+.lv2-ticker-tag {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 3;
+  background: var(--lv2-bg);
+  padding: 4px 10px;
+  border: 1px solid var(--lv2-accent);
+  border-radius: 3px;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  color: var(--lv2-accent);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.lv2-ticker-tag::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lv2-accent);
+  animation: lv2-pulse 1.2s ease-in-out infinite;
+}
+.lv2-ticker-track {
+  display: flex;
+  gap: 56px;
+  white-space: nowrap;
+  animation: lv2-ticker-scroll 40s linear infinite;
+  padding-left: 120px;
+}
+.lv2-ticker:hover .lv2-ticker-track {
+  animation-play-state: paused;
+}
+.lv2-ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.lv2-ticker-item strong {
+  color: var(--lv2-ink);
+  font-weight: 500;
+}
+.lv2-ticker-item .tk-pos { color: var(--lv2-pos); }
+.lv2-ticker-item .tk-neg { color: var(--lv2-neg); }
+.lv2-ticker-item .tk-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--lv2-ink-faint);
+}
+@keyframes lv2-ticker-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ---------- 6. SCROLL REVEAL ---------- */
+.lv2-section-head,
+.lv2-strategy-item,
+.lv2-num-cell,
+.lv2-risk-row,
+.lv2-closing-grid {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+              transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+  will-change: opacity, transform;
+}
+.lv2-section-head.is-visible,
+.lv2-strategy-item.is-visible,
+.lv2-num-cell.is-visible,
+.lv2-risk-row.is-visible,
+.lv2-closing-grid.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Stagger */
+.lv2-strategy-item:nth-child(2).is-visible { transition-delay: 0.08s; }
+.lv2-strategy-item:nth-child(3).is-visible { transition-delay: 0.16s; }
+.lv2-strategy-item:nth-child(4).is-visible { transition-delay: 0.24s; }
+
+.lv2-num-cell:nth-child(2).is-visible { transition-delay: 0.06s; }
+.lv2-num-cell:nth-child(3).is-visible { transition-delay: 0.12s; }
+.lv2-num-cell:nth-child(4).is-visible { transition-delay: 0.18s; }
+.lv2-num-cell:nth-child(5).is-visible { transition-delay: 0.24s; }
+.lv2-num-cell:nth-child(6).is-visible { transition-delay: 0.30s; }
+
+.lv2-risk-row:nth-child(2).is-visible { transition-delay: 0.05s; }
+.lv2-risk-row:nth-child(3).is-visible { transition-delay: 0.10s; }
+.lv2-risk-row:nth-child(4).is-visible { transition-delay: 0.15s; }
+.lv2-risk-row:nth-child(5).is-visible { transition-delay: 0.20s; }
+.lv2-risk-row:nth-child(6).is-visible { transition-delay: 0.25s; }
+
+/* ---------- 7. 3D CARD TILT (strategy + numbers) ---------- */
+.lv2-strategy-item,
+.lv2-num-cell {
+  --tilt-x: 0deg;
+  --tilt-y: 0deg;
+  --spot-x: 50%;
+  --spot-y: 50%;
+  transform-style: preserve-3d;
+  transition: opacity 0.9s, transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+              background 0.4s ease;
+  border-radius: 10px;
+  padding: 0.8rem 1rem;
+  margin-inline: -1rem;
+  position: relative;
+  overflow: hidden;
+}
+.lv2-strategy-item.is-tilting,
+.lv2-num-cell.is-tilting {
+  transform: perspective(1000px)
+    rotateX(var(--tilt-x))
+    rotateY(var(--tilt-y))
+    translateZ(0);
+}
+.lv2-strategy-item::after,
+.lv2-num-cell::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    400px circle at var(--spot-x) var(--spot-y),
+    rgba(255, 107, 53, 0.10),
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+.lv2-strategy-item:hover::after,
+.lv2-num-cell:hover::after { opacity: 1; }
+
+.lv2-strategy-item:hover .lv2-strategy-title { color: var(--lv2-accent); }
+.lv2-strategy-title { transition: color 0.3s ease; }
+
+.lv2-num-value { transition: text-shadow 0.4s ease; }
+.lv2-num-cell:hover .lv2-num-value.is-accent {
+  text-shadow: 0 0 32px rgba(255, 107, 53, 0.55);
+}
+.lv2-num-cell:hover .lv2-num-value.is-pos {
+  text-shadow: 0 0 32px rgba(98, 208, 138, 0.45);
+}
+
+/* ---------- 8. RISK ROW UNDERLINE ---------- */
+.lv2-risk-row {
+  position: relative;
+}
+.lv2-risk-row::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--lv2-accent) 0%, transparent 100%);
+  transition: width 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.lv2-risk-row:hover::before { width: 100%; }
+.lv2-risk-row:hover .lv2-risk-num {
+  color: var(--lv2-accent);
+  transition: color 0.3s ease;
+}
+
+/* ---------- 9. NAV ---------- */
+.lv2-nav-links a:not(.lv2-nav-cta) {
+  position: relative;
+  transition: color 0.3s ease;
+}
+.lv2-nav-links a:not(.lv2-nav-cta)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  width: 0;
+  height: 1px;
+  background: var(--lv2-accent);
+  transition: width 0.35s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.lv2-nav-links a:not(.lv2-nav-cta):hover { color: var(--lv2-ink); }
+.lv2-nav-links a:not(.lv2-nav-cta):hover::after { width: 100%; }
+
+.lv2-nav-cta {
+  position: relative;
+  overflow: hidden;
+}
+.lv2-nav-cta::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 107, 53, 0.15),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+.lv2-nav-cta:hover::before { left: 100%; }
+
+/* ---------- 10. SECTION META PULSE ---------- */
+.lv2-section-meta {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.lv2-section-meta::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--lv2-accent);
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.6);
+  animation: lv2-pulse 2.4s ease-in-out infinite;
+}
+@keyframes lv2-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.65); }
+}
+
+/* ---------- 11. CLOSING SECTION DRAMATIC ---------- */
+.lv2-closing {
+  position: relative;
+  overflow: hidden;
+}
+.lv2-closing::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 1000px;
+  height: 1000px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(
+    circle,
+    rgba(255, 107, 53, 0.10) 0%,
+    transparent 60%
+  );
+  z-index: 0;
+  pointer-events: none;
+}
+.lv2-closing > * { position: relative; z-index: 1; }
+
+/* ---------- 12. NUMBER CONTAINER SUBTLE BG ---------- */
+.lv2-numbers {
+  position: relative;
+}
+.lv2-numbers::before {
+  content: "";
+  position: absolute;
+  inset: -40px;
+  background:
+    linear-gradient(180deg, var(--lv2-rule), transparent 6%, transparent 94%, var(--lv2-rule)),
+    linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.02), transparent);
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ---------- 13. SMOOTH SCROLL ---------- */
+html { scroll-behavior: smooth; }
+
+/* ---------- 14. CUSTOM SELECTION ---------- */
+.lv2-root ::selection {
+  background: rgba(255, 107, 53, 0.35);
+  color: var(--lv2-ink);
+}
+
+/* ---------- 15. SCROLL PROGRESS BAR ---------- */
+.lv2-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 0%;
+  background: linear-gradient(90deg, var(--lv2-accent), #FFB996);
+  z-index: 1000;
+  transition: width 0.1s linear;
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.6);
+}
+
+/* ---------- 16. COUNTING NUMBERS ---------- */
+[data-counter] { font-variant-numeric: tabular-nums; }
+
+/* ============================================================
+   DASHBOARD LAYER — scoped to #dashboard
+   ============================================================ */
+
+/* ---------- D1. PAGE ENTRANCE ---------- */
+#dashboard .page.active > * {
+  opacity: 0;
+  transform: translateY(14px);
+  animation: lv2-rise 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) forwards;
+}
+#dashboard .page.active > *:nth-child(1) { animation-delay: 0.05s; }
+#dashboard .page.active > *:nth-child(2) { animation-delay: 0.12s; }
+#dashboard .page.active > *:nth-child(3) { animation-delay: 0.20s; }
+#dashboard .page.active > *:nth-child(4) { animation-delay: 0.28s; }
+#dashboard .page.active > *:nth-child(5) { animation-delay: 0.36s; }
+
+/* ---------- D2. SIDEBAR NAV SLIDE INDICATOR ---------- */
+#dashboard .sidebar nav a {
+  position: relative;
+  overflow: hidden;
+}
+#dashboard .sidebar nav a::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0);
+  width: 2px;
+  height: 60%;
+  background: var(--lv2-accent);
+  transition: transform 0.3s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transform-origin: center;
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.6);
+}
+#dashboard .sidebar nav a:hover::before { transform: translateY(-50%) scaleY(1); }
+#dashboard .sidebar nav a.active::before { transform: translateY(-50%) scaleY(1); }
+
+#dashboard .sidebar nav a {
+  transition: color 0.25s ease, padding-left 0.3s cubic-bezier(0.2, 0.7, 0.2, 1),
+              background 0.25s ease;
+}
+#dashboard .sidebar nav a:hover { padding-left: 0.9rem; }
+#dashboard .sidebar nav a.active { padding-left: 0.9rem; }
+
+/* Subtle gradient bg on active */
+#dashboard .sidebar nav a.active {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 107, 53, 0.15) 0%,
+    rgba(255, 107, 53, 0) 80%
+  );
+}
+
+/* ---------- D3. SIDEBAR BRAND HOVER ---------- */
+#dashboard .sidebar-brand {
+  transition: opacity 0.25s ease;
+}
+#dashboard .sidebar-brand:hover { opacity: 0.75; }
+#dashboard .sidebar-brand-mark {
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+              color 0.3s ease;
+}
+#dashboard .sidebar-brand:hover .sidebar-brand-mark {
+  color: var(--lv2-accent);
+  transform: rotate(-8deg);
+}
+
+/* ---------- D4. TOPBAR PILL PULSE ---------- */
+#dashboard .topbar-window {
+  position: relative;
+  transition: border-color 0.3s ease, background 0.3s ease;
+}
+#dashboard .topbar-window:hover {
+  border-color: var(--lv2-accent);
+  background: rgba(255, 107, 53, 0.05);
+}
+#dashboard .topbar-window-dot {
+  animation: lv2-pulse 2.4s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(98, 208, 138, 0.7);
+}
+
+#dashboard .status-item {
+  transition: color 0.25s ease;
+}
+#dashboard .status-item:hover .value {
+  color: var(--lv2-accent);
+}
+#dashboard .status-item .value {
+  transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+/* ---------- D5. CARDS — hover lift + glow + cursor spotlight ---------- */
+#dashboard .card {
+  --d-spot-x: 50%;
+  --d-spot-y: 50%;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+              border-color 0.4s ease,
+              box-shadow 0.4s ease;
+}
+#dashboard .card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    500px circle at var(--d-spot-x) var(--d-spot-y),
+    rgba(255, 107, 53, 0.06),
+    transparent 50%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+#dashboard .card:hover::before { opacity: 1; }
+#dashboard .card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 107, 53, 0.25);
+  box-shadow: 0 16px 48px -12px rgba(0, 0, 0, 0.6),
+              0 0 0 1px rgba(255, 107, 53, 0.08);
+}
+#dashboard .card > * { position: relative; z-index: 1; }
+
+/* Card header underline shimmer */
+#dashboard .card-header {
+  position: relative;
+}
+#dashboard .card-header::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+  width: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--lv2-accent), transparent);
+  transition: width 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+#dashboard .card:hover .card-header::after { width: 100%; }
+
+/* ---------- D6. KPI GRID ---------- */
+#dashboard .kpi-grid > * {
+  transition: transform 0.4s cubic-bezier(0.2, 0.7, 0.2, 1),
+              border-color 0.4s ease,
+              background 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+#dashboard .kpi-grid > *::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--lv2-accent), transparent);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+#dashboard .kpi-grid > *:hover::before { opacity: 1; }
+#dashboard .kpi-grid > *:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255, 107, 53, 0.3);
+}
+
+/* ---------- D7. TABLES — row hover + sticky header ---------- */
+#dashboard table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: var(--lv2-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--lv2-rule-strong);
+}
+
+#dashboard table tbody tr {
+  transition: background 0.2s ease;
+  position: relative;
+}
+#dashboard table tbody tr td:first-child {
+  position: relative;
+}
+#dashboard table tbody tr td:first-child::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--lv2-accent);
+  transform: scaleY(0);
+  transition: transform 0.25s cubic-bezier(0.2, 0.7, 0.2, 1);
+  transform-origin: center;
+}
+#dashboard table tbody tr:hover {
+  background: rgba(255, 107, 53, 0.04);
+}
+#dashboard table tbody tr:hover td:first-child::before { transform: scaleY(0.7); }
+
+/* Color-code numeric returns in trade table */
+#dashboard table td.num.pos,
+#dashboard table td.return-pos { color: var(--lv2-pos); }
+#dashboard table td.num.neg,
+#dashboard table td.return-neg { color: var(--lv2-neg); }
+
+/* ---------- D8. LOADING SKELETON SHIMMER ---------- */
+#dashboard .muted,
+#dashboard td.muted {
+  position: relative;
+  overflow: hidden;
+}
+#dashboard .muted::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 107, 53, 0.08) 50%,
+    transparent 100%
+  );
+  animation: lv2-shimmer-bg 1.6s ease-in-out infinite;
+  pointer-events: none;
+}
+@keyframes lv2-shimmer-bg {
+  0%   { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ---------- D9. CHART WRAPPER GLOW ---------- */
+#dashboard .chart-wrap {
+  position: relative;
+  transition: filter 0.4s ease;
+}
+#dashboard .card:hover .chart-wrap {
+  filter: drop-shadow(0 4px 24px rgba(255, 107, 53, 0.15));
+}
+
+/* ---------- D10. PAGE HEADER FRAUNCES + UNDERLINE ---------- */
+#dashboard .page-header h1 {
+  position: relative;
+  display: inline-block;
+}
+#dashboard .page-header h1::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -6px;
+  width: 40px;
+  height: 2px;
+  background: var(--lv2-accent);
+  box-shadow: 0 0 12px rgba(255, 107, 53, 0.6);
+  animation: lv2-bar-grow 0.8s cubic-bezier(0.2, 0.7, 0.2, 1) 0.3s both;
+}
+@keyframes lv2-bar-grow {
+  0%   { width: 0; }
+  100% { width: 40px; }
+}
+
+/* ---------- D11. TOGGLE BUTTONS ---------- */
+#dashboard .toggle-btn {
+  position: relative;
+  overflow: hidden;
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+}
+#dashboard .toggle-btn::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 107, 53, 0.15),
+    transparent
+  );
+  transition: left 0.5s ease;
+}
+#dashboard .toggle-btn:hover::before { left: 100%; }
+#dashboard .toggle-btn:hover {
+  border-color: var(--lv2-accent);
+  color: var(--lv2-accent);
+}
+
+/* ---------- D12. SIDEBAR FOOT GIT TICK ---------- */
+#dashboard .sidebar-foot code {
+  color: var(--lv2-accent);
+  position: relative;
+  padding-left: 14px;
+}
+#dashboard .sidebar-foot code::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--lv2-pos);
+  box-shadow: 0 0 8px rgba(98, 208, 138, 0.7);
+  animation: lv2-pulse 2s ease-in-out infinite;
+}
+
+/* ---------- D13. CUSTOM SCROLLBAR ---------- */
+#dashboard ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+#dashboard ::-webkit-scrollbar-track {
+  background: transparent;
+}
+#dashboard ::-webkit-scrollbar-thumb {
+  background: var(--lv2-rule-strong);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+#dashboard ::-webkit-scrollbar-thumb:hover {
+  background: var(--lv2-accent);
+}
+
+/* ---------- D14. BACK-TO-HOME BUTTON GLOW ---------- */
+#dashboard .sidebar-foot .btn {
+  position: relative;
+  overflow: hidden;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+#dashboard .sidebar-foot .btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 107, 53, 0.12),
+    transparent
+  );
+  transform: translateX(-100%);
+  transition: transform 0.5s ease;
+}
+#dashboard .sidebar-foot .btn:hover::before { transform: translateX(100%); }
+#dashboard .sidebar-foot .btn:hover {
+  border-color: var(--lv2-accent);
+  color: var(--lv2-accent);
+}
+
+/* ---------- D15. KPI VALUE GRADIENT TEXT (on hover) ---------- */
+#dashboard .kpi-grid .value,
+#dashboard .kpi-grid [class*="value"] {
+  transition: text-shadow 0.4s ease;
+}
+#dashboard .kpi-grid > *:hover .value,
+#dashboard .kpi-grid > *:hover [class*="value"] {
+  text-shadow: 0 0 28px rgba(255, 107, 53, 0.4);
+}
+
+/* ---------- D16. STATUSBAR HOVER SEPARATOR ---------- */
+#dashboard .statusbar {
+  position: relative;
+}
+#dashboard .statusbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--lv2-accent),
+    transparent
+  );
+  opacity: 0;
+  transform: scaleX(0.3);
+  transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+#dashboard .statusbar:hover::after {
+  opacity: 0.5;
+  transform: scaleX(1);
+}
+
+/* ============================================================
+   ANNOUNCEMENTS PAGE
+   ============================================================ */
+.ann-search-input {
+  background: var(--lv2-bg-soft);
+  border: 1px solid var(--lv2-rule);
+  color: var(--lv2-ink);
+  padding: 8px 12px;
+  font-family: var(--lv2-font-mono);
+  font-size: 0.8rem;
+  border-radius: 6px;
+  min-width: 220px;
+  transition: border-color 0.25s ease, background 0.25s ease;
+}
+.ann-search-input:focus {
+  outline: none;
+  border-color: var(--lv2-accent);
+  background: var(--lv2-bg-card);
+  box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.12);
+}
+.ann-search-input::placeholder { color: var(--lv2-ink-faint); }
+
+.ann-chips {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.ann-chip {
+  background: transparent;
+  border: 1px solid var(--lv2-rule);
+  color: var(--lv2-ink-muted);
+  font-family: var(--lv2-font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 6px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.ann-chip:hover {
+  color: var(--lv2-ink);
+  border-color: var(--lv2-rule-strong);
+}
+.ann-chip.is-active {
+  background: var(--lv2-accent);
+  color: var(--lv2-bg);
+  border-color: var(--lv2-accent);
+  box-shadow: 0 0 16px rgba(255, 107, 53, 0.4);
+}
+
+.ann-cat-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  font-family: var(--lv2-font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  border: 1px solid var(--lv2-rule-strong);
+  border-radius: 3px;
+  color: var(--lv2-ink-muted);
+}
+
+.ann-dec {
+  display: inline-block;
+  padding: 2px 10px;
+  font-family: var(--lv2-font-mono);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  border-radius: 3px;
+}
+.ann-dec.is-pos {
+  background: rgba(98, 208, 138, 0.12);
+  color: var(--lv2-pos);
+  border: 1px solid rgba(98, 208, 138, 0.4);
+}
+.ann-dec.is-neg {
+  background: rgba(244, 100, 106, 0.12);
+  color: var(--lv2-neg);
+  border: 1px solid rgba(244, 100, 106, 0.4);
+}
+.ann-dec.is-skip {
+  background: rgba(244, 244, 240, 0.05);
+  color: var(--lv2-ink-faint);
+  border: 1px solid var(--lv2-rule);
+}
+
+.ann-title {
+  max-width: 480px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--lv2-ink-muted);
+}
+
+/* ============================================================
+   LIVE MONITOR PAGE
+   ============================================================ */
+.monitor-status-bar .mon-card {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 107, 53, 0.04),
+    rgba(255, 107, 53, 0)
+  );
+  border: 1px solid var(--lv2-rule);
+  border-radius: 10px;
+  padding: 20px;
+  position: relative;
+  overflow: hidden;
+}
+.monitor-status-bar .mon-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--lv2-accent), transparent);
+  animation: lv2-shimmer-bg 3s ease-in-out infinite;
+}
+
+.mon-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 18px 28px;
+}
+.mon-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.mon-stat-label {
+  font-family: var(--lv2-font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--lv2-ink-faint);
+}
+.mon-stat-value {
+  font-family: var(--lv2-font-display);
+  font-size: 1.4rem;
+  font-weight: 380;
+  color: var(--lv2-ink);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.mon-stat-value.is-pos  { color: var(--lv2-pos); }
+.mon-stat-value.is-neg  { color: var(--lv2-neg); }
+.mon-stat-value.is-warn { color: var(--lv2-warn); }
+.mon-stat-value.mon-mono {
+  font-family: var(--lv2-font-mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.mon-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 10px currentColor;
+  animation: lv2-pulse 1.4s ease-in-out infinite;
+}
+
+.mon-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--lv2-rule);
+  font-size: 0.85rem;
+  gap: 16px;
+}
+.mon-row:last-child { border-bottom: none; }
+.mon-row-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--lv2-ink-muted);
+  text-transform: uppercase;
+  font-family: var(--lv2-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+.mon-row-value {
+  font-family: var(--lv2-font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+.mon-row-value.is-pos  { color: var(--lv2-pos); }
+.mon-row-value.is-neg  { color: var(--lv2-neg); }
+.mon-row-value.is-warn { color: var(--lv2-warn); }
+
+.mon-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.mon-dot.is-pos {
+  background: var(--lv2-pos);
+  box-shadow: 0 0 10px rgba(98, 208, 138, 0.7);
+  animation: lv2-pulse 1.6s ease-in-out infinite;
+}
+.mon-dot.is-neg {
+  background: var(--lv2-neg);
+  box-shadow: 0 0 10px rgba(244, 100, 106, 0.7);
+}
+.mon-dot.is-warn {
+  background: var(--lv2-warn);
+  box-shadow: 0 0 10px rgba(245, 181, 71, 0.7);
+  animation: lv2-pulse 2s ease-in-out infinite;
+}
+
+.mon-lat-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+.mon-lat-cell {
+  padding: 14px;
+  background: var(--lv2-bg-soft);
+  border: 1px solid var(--lv2-rule);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: border-color 0.3s ease, transform 0.3s ease;
+}
+.mon-lat-cell:hover {
+  border-color: var(--lv2-accent);
+  transform: translateY(-2px);
+}
+.mon-lat-label {
+  font-family: var(--lv2-font-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--lv2-ink-faint);
+}
+.mon-lat-value {
+  font-family: var(--lv2-font-display);
+  font-size: 1.6rem;
+  font-weight: 380;
+}
+.mon-lat-value.is-pos  { color: var(--lv2-pos); }
+.mon-lat-value.is-warn { color: var(--lv2-warn); }
+.mon-lat-value.is-neg  { color: var(--lv2-neg); }
+
+/* Numeric color helpers (used inside monitor tables) */
+#dashboard .num.is-pos { color: var(--lv2-pos); }
+#dashboard .num.is-neg { color: var(--lv2-neg); }
+
+/* ---------- 17. REDUCED MOTION ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .lv2-section-head,
+  .lv2-strategy-item,
+  .lv2-num-cell,
+  .lv2-risk-row,
+  .lv2-closing-grid {
+    opacity: 1;
+    transform: none;
+  }
+  .lv2-ticker-track { animation: none; }
+}

@@ -1,0 +1,28 @@
+# MEXC spot OHLCV around Binance announcement times (pre-listed / cross-venue).
+# See src/scraper/mexc_klines.py
+#
+# For **5m** pulls from **2025-06-01** onward (when public 5m is often available), use:
+#   config/mexc_5m_from_june2025.yaml
+#
+# WARNING: MEXC public 1m klines may return empty rows for older windows (short
+# retention vs multi-year thesis). If coverage is low, add Gate.io/KuCoin or
+# use a coarser interval / paid historical feed (document in thesis).
+
+venue: mexc
+
+# Only pull for these announcement catalog_name values (empty = all rows with symbols)
+catalogs:
+  - new_cryptocurrency_listing
+
+# Kline interval for GET /api/v3/klines (e.g. 1m, 60m for hourly). Not 1h — MEXC expects 60m.
+# interval: 1m
+
+# Time window around each announcement published_at (hours)
+pre_hours: 2.0
+post_hours: 26.0
+
+# Output directory (Parquet per pair, same column names as Binance klines)
+output_dir: data/raw/mexc_klines
+
+# Request pacing (ccxt enableRateLimit also on)
+sleep_between_symbols_s: 0.35

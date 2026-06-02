@@ -125,13 +125,18 @@ def api_listing_backtest(balanced: bool = True) -> dict:
 
 
 def main() -> None:
+    import os
     import uvicorn
 
+    # In production (Render / HF Spaces / Fly) the platform sets PORT and
+    # expects the server to bind 0.0.0.0. Local dev keeps loopback + reload.
+    port = int(os.environ.get("PORT", "8765"))
+    is_prod = bool(os.environ.get("PORT")) or os.environ.get("ENV") == "production"
     uvicorn.run(
         "src.web.app:app",
-        host="127.0.0.1",
-        port=8765,
-        reload=True,
+        host="0.0.0.0" if is_prod else "127.0.0.1",
+        port=port,
+        reload=not is_prod,
     )
 
 

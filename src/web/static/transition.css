@@ -1,0 +1,151 @@
+/* ============================================================
+   transition.css — landing ⇄ dashboard "mechanical curtain"
+   ============================================================
+   Design intent:
+     Editorial cut, not a SaaS fade. A burnt-orange curtain wipes
+     down from the top, covering the viewport in ~280ms (ease-in),
+     surfaces swap behind it, then the curtain lifts up off the
+     screen in another ~280ms (ease-out). Total perceived time:
+     ~560ms. Only `transform` + `opacity` animate → GPU-safe at
+     60fps with no layout/paint cost.
+
+   Accessibility:
+     `prefers-reduced-motion: reduce` collapses the entire dance
+     to a hard cut. No focus is moved mid-animation.
+   ============================================================ */
+
+.lv2-curtain {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: var(--lv2-accent, #FF6B35);
+  transform-origin: top;
+  transform: scaleY(0);
+  pointer-events: none;
+  will-change: transform;
+  /* The curtain carries a single line of editorial text in the
+     centre so the cover frame doesn't feel like a load screen. */
+  display: grid;
+  place-items: center;
+}
+
+.lv2-curtain[data-phase="covering"] {
+  transform-origin: top;
+  animation: lv2-curtain-cover 280ms cubic-bezier(0.7, 0, 0.84, 0) forwards;
+}
+.lv2-curtain[data-phase="lifting"] {
+  transform-origin: bottom;
+  animation: lv2-curtain-lift 280ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes lv2-curtain-cover {
+  from { transform: scaleY(0); }
+  to   { transform: scaleY(1); }
+}
+@keyframes lv2-curtain-lift {
+  from { transform: scaleY(1); }
+  to   { transform: scaleY(0); }
+}
+
+/* The mark inside the curtain — only visible during the cover phase.
+   Uses the same brand-mark idiom as the landing nav, in inverted
+   colours because the curtain is solid accent. */
+.lv2-curtain-mark {
+  font-family: var(--lv2-font-mono, "JetBrains Mono", monospace);
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--lv2-bg, #0A0A0A);
+  opacity: 0;
+  transform: translateY(4px);
+}
+.lv2-curtain[data-phase="covering"] .lv2-curtain-mark,
+.lv2-curtain[data-phase="lifting"]  .lv2-curtain-mark {
+  animation: lv2-mark-pulse 560ms ease both;
+}
+@keyframes lv2-mark-pulse {
+  0%   { opacity: 0; transform: translateY(4px); }
+  35%  { opacity: 1; transform: translateY(0); }
+  65%  { opacity: 1; transform: translateY(0); }
+  100% { opacity: 0; transform: translateY(-4px); }
+}
+
+/* --- Surface settle animation --------------------------------
+   When the destination surface is revealed (after the curtain
+   covers and the DOM has been swapped), it does a tiny opacity
+   + 1.01→1.00 settle so the reveal feels intentional rather than
+   "popped". 220ms is short enough to feel snappy. */
+
+.lv2-settle {
+  animation: lv2-settle 220ms ease-out both;
+}
+@keyframes lv2-settle {
+  from { opacity: 0; transform: scale(1.008); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* --- Reduced motion ----------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .lv2-curtain,
+  .lv2-curtain[data-phase] { animation: none !important; transform: scaleY(0) !important; }
+  .lv2-settle { animation: none !important; }
+}
+
+/* ============================================================
+   Inner page transitions — Overview ⇄ Trades ⇄ System
+   ============================================================
+   The dashboard hosts three sibling .page sections that swap via
+   `.active`. Replace the abrupt display toggle with a slide-up +
+   fade. The outgoing page fades out fast (110ms) while the new
+   one comes up 6px and settles (220ms). The two animations
+   slightly overlap so the surface is never "blank".
+   ============================================================ */
+
+#dashboard .page {
+  display: none;
+  opacity: 0;
+  transform: translateY(6px);
+  will-change: opacity, transform;
+}
+
+#dashboard .page.active {
+  display: block;
+  animation: lv2-page-in 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+#dashboard .page.is-leaving {
+  display: block;
+  animation: lv2-page-out 110ms ease-in both;
+}
+
+@keyframes lv2-page-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes lv2-page-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-4px); }
+}
+
+/* Top-down stagger for first 5 direct children */
+#dashboard .page.active > * {
+  animation: lv2-page-in 240ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+#dashboard .page.active > :nth-child(1) { animation-delay: 30ms; }
+#dashboard .page.active > :nth-child(2) { animation-delay: 80ms; }
+#dashboard .page.active > :nth-child(3) { animation-delay: 130ms; }
+#dashboard .page.active > :nth-child(4) { animation-delay: 180ms; }
+#dashboard .page.active > :nth-child(5) { animation-delay: 220ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  #dashboard .page,
+  #dashboard .page.active,
+  #dashboard .page.is-leaving,
+  #dashboard .page.active > * {
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+  #dashboard .page { display: none; }
+  #dashboard .page.active { display: block; }
+}

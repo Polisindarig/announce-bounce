@@ -1,0 +1,6 @@
+# OOS simplified backtest on events.parquet (single exit at horizon column).
+events_path: data/processed/events.parquet
+window_config: config/data_window.yaml
+horizon_col: ret_15m
+fee_roundtrip: 0.002
+slippage_each_leg: 0.00075

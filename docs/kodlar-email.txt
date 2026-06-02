@@ -1,0 +1,310 @@
+================================================================================
+BINANCE SENTIMENT BOT — KAYNAK KOD DOSYA HARITASI
+================================================================================
+
+Proje: Binance duyuru akisi + regex kategori siniflandirici + MEXC/Binance
+        islem stratejisi. Bu belge, hangi islevin hangi dosyada oldugunu listeler.
+
+Repo kok dizini (gelistirici makinesinde):
+  binance-sentiment-bot/
+
+Tum yollar asagida repo kokune gore verilmistir (ornek: src/backtest/engine.py).
+
+================================================================================
+1. REGEX VE SINIFLANDIRMA
+================================================================================
+
+  Kategori siniflandirici (classify, re.search)
+    -> src/sentiment/category_classifier.py
+
+  Basliktan ticker cikarma (TITLE_PATTERNS)
+    -> src/scraper/symbol_extractor.py
+
+  Olay tablosu; her satirda classify()
+    -> src/processing/build_events.py
+
+  Trade karari: LONG/SKIP, TP/SL, stablecoin
+    -> src/strategy/decision_engine.py
+
+  FinBERT skorlama (offline; uretim yolu degil)
+    -> src/sentiment/sentiment_scorer.py
+
+  Hibrit skor (regex + lexical)
+    -> src/sentiment/hybrid_scorer.py
+
+  SVM / Ridge benchmark (Appendix B)
+    -> src/analysis/train_baseline.py
+
+  Kirlenme bayraklari
+    -> src/processing/contamination.py
+
+  Listing zamani t_0
+    -> src/scraper/listing_time.py
+
+  Uretim akisi:
+    duyuru -> symbol_extractor -> build_events + category_classifier -> decision_engine
+
+================================================================================
+2. COIN SECIMI VE EVREN
+================================================================================
+
+  Ilk listing filtresi, stablecoin, dedup, reject phrases
+    -> src/backtest/engine.py  (fonksiyon: filter_real_tier1_events)
+
+  MEXC'de duyurudan once islem (tradability)
+    -> src/backtest/engine.py  (fonksiyon: run_backtest, ~satir 311+)
+
+  Kategori -> venue, TP, SL, time stop
+    -> src/strategy/decision_engine.py  (CALIBRATION_TABLE, decide)
+
+  Dashboard BUY/SKIP ve "target universe"
+    -> src/web/data_loader.py  (recent_announcements)
+
+  Tez OOS senkron notu
+    -> scripts/sync_oos_to_thesis.py
+
+  --- Cikti / evren verisi ---
+
+  Tum duyuru x coin olay tablosu
+    -> data/processed/events.parquet
+
+  165 coin evreni (four-filter sonucu)
+    -> data/processed/universe_combined.csv
+
+  Manuel dogrulanmis MEXC listing listesi
+    -> data/processed/manual_verified_mexc_listing_pumps.csv
+
+  Not: universe_combined.csv ureten tek bir build_universe.py yok; secim
+       engine.py + decision_engine.py + manuel/OHLCV adimlariyla dagitik.
+
+  --- Four-filter <-> kod ---
+
+  Filtre 1 (ilk bullish duyuru)
+    -> filter_real_tier1_events: drop_duplicates(symbol, keep="first")
+
+  Filtre 2 (henuz Binance'te degil)
+    -> run_backtest tradability: duyurudan once MEXC bar yoksa skip
+
+  Filtre 3 (MEXC'de USDT ile islem)
+    -> kline varligi + tradability; src/scraper/mexc_klines.py
+
+  Filtre 4 (stablecoin degil)
+    -> EXCLUDED_SYMBOLS (engine) + STABLECOINS (decision_engine)
+
+================================================================================
+3. BACKTEST
+================================================================================
+
+  Ana motor (run_backtest, BacktestConfig, main)
+    -> src/backtest/engine.py
+
+  OOS kosusu (frozen parametreler)
+    -> src/backtest/oos_run.py
+
+  Gecikme / fee duyarliligi
+    -> src/backtest/robustness_run.py
+
+  Listing-catalog OOS raporu
+    -> src/analysis/listing_backtest_report.py
+
+  --- Config ---
+
+  IS/OOS tarih penceresi
+    -> config/data_window.yaml
+
+  OOS parametreleri
+    -> config/oos.yaml
+
+  Baseline backtest
+    -> config/backtest_baseline.yaml
+
+  Listing backtest
+    -> config/backtest_listing.yaml
+    -> config/backtest_listing_balanced.yaml
+
+  MEXC
+    -> config/mexc.yaml
+    -> config/mexc_5m_from_june2025.yaml
+
+  Gate.io
+    -> config/gateio.yaml
+
+  Listing eval penceresi
+    -> config/listing_eval_window.yaml
+
+  --- Calistirma (repo kokunden) ---
+
+  python -m src.processing.build_events
+  python -m src.backtest.engine
+  python -m src.backtest.oos_run
+
+================================================================================
+4. BACKTEST VE ANALIZ CIKTILARI (data/processed/)
+================================================================================
+
+  Olay tablosu
+    -> events.parquet
+
+  IS M0 sonuc
+    -> backtest_m0_result.json
+
+  IS M1 sonuc
+    -> backtest_m1_result.json
+
+  OOS sonuc (dashboard ana kaynak)
+    -> phase6_oos_result.json
+
+  165 trade tablosu (101 IS + 64 OOS)
+    -> strategy_h1_sl8_tp25.csv
+
+  FinBERT 3340 baslik
+    -> finbert_full_3340.json
+
+  Train baseline raporu
+    -> train_baseline_report.json
+
+  Reproducibility manifest
+    -> reproducibility_manifest.json
+
+  Manifest uretimi
+    -> src/utils/reproducibility_manifest.py
+
+================================================================================
+5. VERI TOPLAMA VE KLINE
+================================================================================
+
+  Binance duyurulari
+    -> src/scraper/announcements.py
+
+  Spyder scrape
+    -> scripts/scrape_announcements_spyder.py
+
+  MEXC OHLCV
+    -> src/scraper/mexc_klines.py
+    -> src/scraper/mexc_web_klines.py
+
+  Gate.io klines
+    -> src/scraper/gateio_klines.py
+
+  Genel klines
+    -> src/scraper/klines.py
+
+  Toplu kline
+    -> src/scraper/klines_bulk.py
+
+  Event penceresi kline
+    -> src/scraper/klines_event.py
+
+  REST gap fill
+    -> src/scraper/klines_rest_gapfill.py
+
+  Phase 1 kosucu
+    -> src/scraper/run_phase1.py
+
+  Hizli scrape
+    -> src/scraper/fast_scrape.py
+
+  MEXC CSV klasor ingest
+    -> scripts/ingest_mexc_csv_folder.py
+
+  BTC / index ayarli getiri
+    -> src/processing/crypto_index.py
+
+  Pipeline downstream
+    -> src/pipeline/downstream.py
+
+  Ham veri: data/raw/
+  Islenmis veri: data/processed/
+
+================================================================================
+6. EVENT STUDY (BACKTEST DISI)
+================================================================================
+
+  Listing event study          -> src/analysis/listing_event_study.py
+  Tier-1 event study           -> src/analysis/tier1_event_study.py
+  Event study istatistik       -> src/analysis/event_study_stats.py
+  Event tablosu                -> src/analysis/event_table.py
+  Events ozet                  -> src/analysis/events_summary.py
+  Venue karsilastirma          -> src/analysis/compare_listing_venues.py
+  Listing sentiment            -> src/analysis/enrich_listing_sentiment.py
+  Phase 4 event study          -> src/analysis/phase4_event_study.py
+
+================================================================================
+7. WEB / DASHBOARD
+================================================================================
+
+  Veri yukleme, feed, bot state
+    -> src/web/data_loader.py
+
+  Uygulama girisi
+    -> src/web/app.py
+
+  Arayuz dosyalari
+    -> src/web/static/index.html
+    -> src/web/static/app.js
+    -> src/web/static/styles.css
+    -> src/web/static/dashboard.css
+    -> src/web/static/landing.css
+    -> src/web/static/enhancements.js
+    -> src/web/static/enhancements.css
+    -> src/web/static/transition.css
+
+================================================================================
+8. TESTLER
+================================================================================
+
+  tests/test_symbol_extractor.py
+  tests/test_build_events_t0.py
+  tests/test_listing_backtest.py
+  tests/test_listing_event_study.py
+  tests/test_train_baseline.py
+  tests/test_mvp_stack.py
+  tests/test_smoke.py
+
+================================================================================
+9. DOKUMANTASYON VE TEZ
+================================================================================
+
+  docs/02-methodology.md
+  docs/03-project-plan.md
+  docs/05-project-walkthrough.md
+  docs/06-ds-workflow-mapping.md
+  docs/kodlar.md                    (bu listenin Markdown surumu)
+  thesis/CHANGE_SPEC.md
+  thesis/build_thesis_v4_EN.py
+  thesis/thesis_v4_EN_1115.docx
+  thesis/thesis_v4_EN_FINAL.docx
+
+================================================================================
+10. HIZLI BASLANGIC (OKUMA SIRASI)
+================================================================================
+
+  1. src/sentiment/category_classifier.py
+  2. src/scraper/symbol_extractor.py
+  3. src/processing/build_events.py  -> data/processed/events.parquet
+  4. src/backtest/engine.py          -> filter_real_tier1_events
+  5. src/strategy/decision_engine.py
+  6. src/backtest/engine.py (IS), src/backtest/oos_run.py (OOS)
+  7. data/processed/phase6_oos_result.json
+     data/processed/strategy_h1_sl8_tp25.csv
+  8. src/web/data_loader.py
+
+================================================================================
+11. URETIM vs OFFLINE
+================================================================================
+
+  Kategori (uretim)     : category_classifier.py (regex)
+  Kategori (offline)    : finbert_full_3340.json
+
+  Trade sinyali (uretim): decision_engine.py (M0)
+  Trade sinyali (offline): train_baseline.py (SVM)
+
+  Backtest (uretim)     : engine.py, oos_run.py
+  Backtest (offline)    : listing_backtest_report.py
+
+  Evren (uretim)        : filter_real_tier1_events + tradability
+  Evren (offline CSV)   : universe_combined.csv
+
+================================================================================
+Son guncelleme: 2026-05-31
+================================================================================

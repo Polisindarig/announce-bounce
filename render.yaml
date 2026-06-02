@@ -1,0 +1,21 @@
+# Render Blueprint — Announce & Bounce thesis dashboard.
+# Push to GitHub, then go to https://dashboard.render.com → New +
+# → Blueprint → connect this repo → "Apply". Render will read this
+# file and create the service automatically.
+
+services:
+  - type: web
+    name: announce-and-bounce
+    runtime: python
+    plan: free
+    region: frankfurt
+    pythonVersion: "3.11"
+    buildCommand: pip install --upgrade pip && pip install -r requirements-web.txt
+    startCommand: uvicorn src.web.app:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: ENV
+        value: production
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    autoDeploy: true
+    healthCheckPath: /

@@ -1,0 +1,23 @@
+# Frozen out-of-sample run configuration (research MVP).
+# Commit before interpreting OOS metrics.
+
+events_path: data/processed/events.parquet
+window_config: config/data_window.yaml
+listing_eval_window: config/listing_eval_window.yaml
+
+latency_seconds: 5
+fee_roundtrip: 0.002
+slippage_each_leg: 0.00075
+
+headline_baseline: index_adj
+fdr_alpha: 0.05
+exclude_contaminated: true
+
+outputs:
+  train_baseline: data/processed/train_baseline_report.json
+  backtest_oos: data/processed/backtest_oos_summary.json
+  listing_backtest: data/processed/listing_backtest_report.json
+  listing_backtest_balanced: data/processed/listing_backtest_report_balanced.json
+  listing_fdr: data/processed/listing_event_study_fdr.json
+  tier1_fdr: data/processed/tier1_event_study_fdr.json
+  manifest: data/processed/reproducibility_manifest.json

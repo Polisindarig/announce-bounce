@@ -1,0 +1,21 @@
+Konu: Binance Sentiment Bot — kaynak kod dosya haritası
+
+Merhaba,
+
+Ekte “Binance Sentiment Bot” projesinde hangi modülün hangi dosyada olduğunu özetleyen bir dosya listesi var (kodlar-email.txt).
+
+Kısaca proje:
+- Binance resmi duyurularını toplar ve başlığı regex ile kategorize eder (listing, delist, monitoring tag, vb.).
+- Bullish (ilk listing) sinyallerinde MEXC’de long; bearish (delist / monitoring tag) tarafında Binance satış analizi.
+- Backtest ve OOS sonuçları data/processed/ altında (ör. phase6_oos_result.json, strategy_h1_sl8_tp25.csv).
+
+Önemli dosyalar:
+- Regex sınıflandırıcı: src/sentiment/category_classifier.py
+- Coin / evren filtresi: src/backtest/engine.py (filter_real_tier1_events, run_backtest)
+- Trade kuralları: src/strategy/decision_engine.py
+- OOS backtest: src/backtest/oos_run.py
+
+Soruların olursa yazabilirsin.
+
+İyi çalışmalar,
+[Adın]

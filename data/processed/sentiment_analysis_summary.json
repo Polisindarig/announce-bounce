@@ -1,0 +1,206 @@
+{
+  "total_announcements": 2616,
+  "models": {
+    "primary": "ElKulako/cryptobert (CryptoBERT)",
+    "secondary": "ProsusAI/finbert (FinBERT)",
+    "baseline": "lexical keyword polarity (removed from final output)"
+  },
+  "date_range": {
+    "earliest": "2023-11-14T02:32:54.947000+00:00",
+    "latest": "2026-05-13T14:42:15.025000+00:00"
+  },
+  "categories": {
+    "OTHER": {
+      "count": 981,
+      "pct": 37.5,
+      "cryptobert": {
+        "avg": 0.037,
+        "median": 0.0,
+        "bullish_pct": 12.9,
+        "bearish_pct": 5.7,
+        "neutral_pct": 81.3
+      },
+      "finbert": {
+        "avg": 0.047,
+        "positive_pct": 7.7,
+        "negative_pct": 1.2
+      }
+    },
+    "LISTING_FUTURES": {
+      "count": 466,
+      "pct": 17.8,
+      "cryptobert": {
+        "avg": 0.101,
+        "median": 0.0,
+        "bullish_pct": 18.0,
+        "bearish_pct": 0.0,
+        "neutral_pct": 82.0
+      },
+      "finbert": {
+        "avg": -0.001,
+        "positive_pct": 0.0,
+        "negative_pct": 0.2
+      }
+    },
+    "MAINTENANCE_SUSPENSION": {
+      "count": 339,
+      "pct": 13.0,
+      "cryptobert": {
+        "avg": 0.228,
+        "median": 0.0,
+        "bullish_pct": 43.7,
+        "bearish_pct": 4.4,
+        "neutral_pct": 51.9
+      },
+      "finbert": {
+        "avg": 0.074,
+        "positive_pct": 11.5,
+        "negative_pct": 0.0
+      }
+    },
+    "LISTING_SPOT": {
+      "count": 313,
+      "pct": 12.0,
+      "cryptobert": {
+        "avg": 0.134,
+        "median": 0.0,
+        "bullish_pct": 23.6,
+        "bearish_pct": 0.0,
+        "neutral_pct": 76.4
+      },
+      "finbert": {
+        "avg": 0.011,
+        "positive_pct": 1.3,
+        "negative_pct": 0.0
+      }
+    },
+    "DELISTING": {
+      "count": 243,
+      "pct": 9.3,
+      "cryptobert": {
+        "avg": 0.014,
+        "median": 0.0,
+        "bullish_pct": 3.3,
+        "bearish_pct": 0.8,
+        "neutral_pct": 95.9
+      },
+      "finbert": {
+        "avg": -0.011,
+        "positive_pct": 0.0,
+        "negative_pct": 2.1
+      }
+    },
+    "STAKING_EARN": {
+      "count": 142,
+      "pct": 5.4,
+      "cryptobert": {
+        "avg": 0.206,
+        "median": 0.0,
+        "bullish_pct": 35.9,
+        "bearish_pct": 0.0,
+        "neutral_pct": 64.1
+      },
+      "finbert": {
+        "avg": 0.397,
+        "positive_pct": 50.7,
+        "negative_pct": 0.7
+      }
+    },
+    "HODLER_AIRDROP": {
+      "count": 75,
+      "pct": 2.9,
+      "cryptobert": {
+        "avg": 0.051,
+        "median": 0.0,
+        "bullish_pct": 9.3,
+        "bearish_pct": 0.0,
+        "neutral_pct": 90.7
+      },
+      "finbert": {
+        "avg": 0.074,
+        "positive_pct": 10.7,
+        "negative_pct": 0.0
+      }
+    },
+    "LAUNCHPOOL_LAUNCHPAD": {
+      "count": 44,
+      "pct": 1.7,
+      "cryptobert": {
+        "avg": 0.414,
+        "median": 0.548,
+        "bullish_pct": 70.5,
+        "bearish_pct": 0.0,
+        "neutral_pct": 29.5
+      },
+      "finbert": {
+        "avg": 0.012,
+        "positive_pct": 2.3,
+        "negative_pct": 0.0
+      }
+    },
+    "PARTNERSHIP_INTEGRATION": {
+      "count": 5,
+      "pct": 0.2,
+      "cryptobert": {
+        "avg": 0.102,
+        "median": 0.0,
+        "bullish_pct": 20.0,
+        "bearish_pct": 0.0,
+        "neutral_pct": 80.0
+      },
+      "finbert": {
+        "avg": 0.0,
+        "positive_pct": 0.0,
+        "negative_pct": 0.0
+      }
+    },
+    "AIRDROP": {
+      "count": 5,
+      "pct": 0.2,
+      "cryptobert": {
+        "avg": 0.237,
+        "median": 0.0,
+        "bullish_pct": 40.0,
+        "bearish_pct": 0.0,
+        "neutral_pct": 60.0
+      },
+      "finbert": {
+        "avg": 0.102,
+        "positive_pct": 20.0,
+        "negative_pct": 0.0
+      }
+    },
+    "FORK_UPGRADE": {
+      "count": 2,
+      "pct": 0.1,
+      "cryptobert": {
+        "avg": 0.0,
+        "median": 0.0,
+        "bullish_pct": 0.0,
+        "bearish_pct": 0.0,
+        "neutral_pct": 100.0
+      },
+      "finbert": {
+        "avg": 0.282,
+        "positive_pct": 50.0,
+        "negative_pct": 0.0
+      }
+    },
+    "REGULATORY": {
+      "count": 1,
+      "pct": 0.0,
+      "cryptobert": {
+        "avg": 0.0,
+        "median": 0.0,
+        "bullish_pct": 0.0,
+        "bearish_pct": 0.0,
+        "neutral_pct": 100.0
+      },
+      "finbert": {
+        "avg": 0.0,
+        "positive_pct": 0.0,
+        "negative_pct": 0.0
+      }
+    }
+  }
+}

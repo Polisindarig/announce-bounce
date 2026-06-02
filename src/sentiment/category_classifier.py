@@ -17,6 +17,7 @@ class Category(str, Enum):
     AIRDROP = "AIRDROP"
     STAKING_EARN = "STAKING_EARN"
     DELISTING = "DELISTING"
+    MONITORING_TAG = "MONITORING_TAG"
     PARTNERSHIP_INTEGRATION = "PARTNERSHIP_INTEGRATION"
     SECURITY_INCIDENT = "SECURITY_INCIDENT"
     REGULATORY = "REGULATORY"
@@ -34,7 +35,13 @@ def classify(
     t = f"{title}\n{body}".lower()
     cn = (catalog_name or "").lower().strip()
 
-    # --- Delisting (highest priority — "delist" keyword is unambiguous) ---
+    # --- Monitoring Tag (precursor to delisting; bearish trigger). ---
+    # Checked BEFORE delisting because a monitoring-tag headline can co-mention
+    # "Remove the Seed Tag" / "Remove the Monitoring Tag" without being a delist.
+    if re.search(r"\b(extend|add).{0,20}monitoring tag\b", t) or "monitoring tag to include" in t:
+        return Category.MONITORING_TAG, 0.88
+
+    # --- Delisting ("delist" keyword or catalog metadata) ---
     if "delist" in t or cn == "delisting":
         return Category.DELISTING, 0.9
 

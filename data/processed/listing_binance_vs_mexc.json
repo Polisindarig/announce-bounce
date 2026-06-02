@@ -1,0 +1,31 @@
+{
+  "n_binance_listing_rows": 183,
+  "n_mexc_listing_rows": 89,
+  "n_matched_pairs": 111,
+  "horizons": {
+    "1m": {
+      "n_both": 107,
+      "binance_median": 0.000903614457831393,
+      "mexc_median": 0.0040392383150604635,
+      "corr": -0.010193674033526069
+    },
+    "5m": {
+      "n_both": 107,
+      "binance_median": -0.005150656708730368,
+      "mexc_median": 0.0040392383150604635,
+      "corr": 0.028292792381910393
+    },
+    "15m": {
+      "n_both": 107,
+      "binance_median": -0.038607594936708824,
+      "mexc_median": 0.012984336356141738,
+      "corr": 0.1926770399499791
+    },
+    "1h": {
+      "n_both": 107,
+      "binance_median": -0.07074374010983894,
+      "mexc_median": -0.044990219517496245,
+      "corr": 0.5128213900394165
+    }
+  }
+}

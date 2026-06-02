@@ -1,0 +1,439 @@
+{
+  "phase": "Phase 7 \u2014 Robustness Tests",
+  "strategy": "M0 (category-only, LISTING_SPOT only)",
+  "note": "Full sample IS+OOS",
+  "latency": {
+    "1": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13962.38,
+      "total_return_pct": 39.62,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.91,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 9.12,
+      "sharpe_per_trade": 1.241,
+      "avg_duration_min": 131.0,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.10086226529045532,
+          "win_rate": 0.875,
+          "total_pnl": 3962.3801263417104
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 5,
+          "mean_return": 0.012587242323643198
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 32,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    },
+    "3": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13962.38,
+      "total_return_pct": 39.62,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.91,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 9.12,
+      "sharpe_per_trade": 1.241,
+      "avg_duration_min": 131.0,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.10086226529045532,
+          "win_rate": 0.875,
+          "total_pnl": 3962.3801263417104
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 5,
+          "mean_return": 0.012587242323643198
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 32,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    },
+    "5": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13962.38,
+      "total_return_pct": 39.62,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.91,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 9.12,
+      "sharpe_per_trade": 1.241,
+      "avg_duration_min": 131.0,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.10086226529045532,
+          "win_rate": 0.875,
+          "total_pnl": 3962.3801263417104
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 5,
+          "mean_return": 0.012587242323643198
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 32,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    },
+    "10": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13962.38,
+      "total_return_pct": 39.62,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.91,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 9.12,
+      "sharpe_per_trade": 1.241,
+      "avg_duration_min": 131.0,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.10086226529045532,
+          "win_rate": 0.875,
+          "total_pnl": 3962.3801263417104
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 5,
+          "mean_return": 0.012587242323643198
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 32,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    },
+    "30": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13822.9,
+      "total_return_pct": 38.23,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.57,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 8.89,
+      "sharpe_per_trade": 1.19,
+      "avg_duration_min": 141.5,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.09783020474194817,
+          "win_rate": 0.875,
+          "total_pnl": 3822.904919634833
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 6,
+          "mean_return": 0.013002548279655031
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 31,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    }
+  },
+  "latency_note": "With 5-min bar resolution, latency scenarios below 300s (5 min) fall within the same bar, so the backtest cannot differentiate them. At 30s the entry may shift to the next bar for some trades. Target latency is 1-5 seconds (poll + classify + order). Literature (Ante 2019, Empirica 2024) confirms most of the pump occurs in the first 1-5 minutes. A tick-level backtest would reveal true latency sensitivity; this is a documented limitation.",
+  "target_latency": "< 5 seconds (scraper poll + classify + order submission)",
+  "fee_sensitivity": {
+    "0.0005": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13870.94,
+      "total_return_pct": 38.71,
+      "max_drawdown_pct": 1.83,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.67,
+      "avg_loss_pct": -9.6,
+      "profit_factor": 9.06,
+      "sharpe_per_trade": 1.202,
+      "avg_duration_min": 141.5,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.0988801698093866,
+          "win_rate": 0.875,
+          "total_pnl": 3870.9439962233637
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 6,
+          "mean_return": 0.014010057062577784
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.12973559999999998
+        },
+        "tp_hit": {
+          "n": 31,
+          "mean_return": 0.13743074999999993
+        }
+      }
+    },
+    "0.001": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13822.9,
+      "total_return_pct": 38.23,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.57,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 8.89,
+      "sharpe_per_trade": 1.19,
+      "avg_duration_min": 141.5,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.09783020474194817,
+          "win_rate": 0.875,
+          "total_pnl": 3822.904919634833
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 6,
+          "mean_return": 0.013002548279655031
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 31,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    },
+    "0.002": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13727.31,
+      "total_return_pct": 37.27,
+      "max_drawdown_pct": 1.9,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.35,
+      "avg_loss_pct": -9.89,
+      "profit_factor": 8.57,
+      "sharpe_per_trade": 1.166,
+      "avg_duration_min": 141.5,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.09573027460707137,
+          "win_rate": 0.875,
+          "total_pnl": 3727.3129032529155
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 6,
+          "mean_return": 0.01098753071380953
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.13254240000000003
+        },
+        "tp_hit": {
+          "n": 31,
+          "mean_return": 0.13422299999999993
+        }
+      }
+    }
+  },
+  "slippage_sensitivity": {
+    "50": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13822.9,
+      "total_return_pct": 38.23,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.57,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 8.89,
+      "sharpe_per_trade": 1.19,
+      "avg_duration_min": 141.5,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.09783020474194817,
+          "win_rate": 0.875,
+          "total_pnl": 3822.904919634833
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 6,
+          "mean_return": 0.013002548279655031
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 31,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    },
+    "100": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13822.9,
+      "total_return_pct": 38.23,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.57,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 8.89,
+      "sharpe_per_trade": 1.19,
+      "avg_duration_min": 141.5,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.09783020474194817,
+          "win_rate": 0.875,
+          "total_pnl": 3822.904919634833
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 6,
+          "mean_return": 0.013002548279655031
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 31,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    },
+    "150": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13822.9,
+      "total_return_pct": 38.23,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.57,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 8.89,
+      "sharpe_per_trade": 1.19,
+      "avg_duration_min": 141.5,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.09783020474194817,
+          "win_rate": 0.875,
+          "total_pnl": 3822.904919634833
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 6,
+          "mean_return": 0.013002548279655031
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 31,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    },
+    "200": {
+      "n_trades": 40,
+      "initial_equity": 10000.0,
+      "final_equity": 13822.9,
+      "total_return_pct": 38.23,
+      "max_drawdown_pct": 1.85,
+      "win_rate": 87.5,
+      "avg_win_pct": 12.57,
+      "avg_loss_pct": -9.69,
+      "profit_factor": 8.89,
+      "sharpe_per_trade": 1.19,
+      "avg_duration_min": 141.5,
+      "by_category": {
+        "LISTING_SPOT": {
+          "n": 40,
+          "mean_return": 0.09783020474194817,
+          "win_rate": 0.875,
+          "total_pnl": 3822.904919634833
+        }
+      },
+      "by_exit_reason": {
+        "time_stop": {
+          "n": 6,
+          "mean_return": 0.013002548279655031
+        },
+        "sl_hit": {
+          "n": 3,
+          "mean_return": -0.1306712
+        },
+        "tp_hit": {
+          "n": 31,
+          "mean_return": 0.1363614999999999
+        }
+      }
+    }
+  },
+  "bot_design": {
+    "scraper_poll_interval": "1-2 seconds (Binance CMS API)",
+    "classification_time": "< 100ms (rule-based, no ML in hot path)",
+    "order_submission": "< 500ms (MEXC REST API market order)",
+    "total_target": "< 3 seconds end-to-end"
+  }
+}

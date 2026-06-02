@@ -6,235 +6,259 @@
   <title>Announce &amp; Bounce — Trading Bot</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/styles.css?v=2" />
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..500,0..100&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/styles.css?v=3" />
+  <link rel="stylesheet" href="/static/landing.css?v=20260527i" />
+  <link rel="stylesheet" href="/static/dashboard.css?v=20260527i" />
+  <link rel="stylesheet" href="/static/transition.css?v=20260527i" />
+  <link rel="stylesheet" href="/static/enhancements.css?v=4" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 
+  <!-- Page-transition curtain (controlled by app.js · enterDashboard /
+       exitDashboard). Renders only while a swap is in flight. -->
+  <div class="lv2-curtain" id="page-curtain" aria-hidden="true">
+    <span class="lv2-curtain-mark">A &amp; B</span>
+  </div>
+
   <!-- ============================================================
        LANDING PAGE
        ============================================================ -->
-  <div id="landing" class="landing">
+  <div id="landing" class="lv2-root">
 
-    <nav class="landing-nav">
-      <div class="landing-nav-inner">
-        <div class="nav-brand">
-          <div class="nav-logo">A</div>
-          <span class="nav-title">Announce &amp; Bounce</span>
-        </div>
-        <div class="nav-links">
-          <a href="#how-it-works">How It Works</a>
+    <nav class="lv2-nav" aria-label="Primary">
+      <div class="lv2-wrap lv2-nav-row">
+        <a href="#" class="lv2-brand" aria-label="Announce & Bounce — home">
+          <span class="lv2-brand-mark">A&amp;B</span>
+          <span>Announce &amp; Bounce</span>
+        </a>
+        <div class="lv2-nav-links">
           <a href="#strategy">Strategy</a>
+          <a href="#numbers">Evidence</a>
           <a href="#risk">Risk</a>
-          <a href="#faq">FAQ</a>
-          <button class="btn btn-sm" onclick="enterDashboard()">Open Dashboard</button>
+          <a href="#overview" class="lv2-nav-cta" onclick="enterDashboard()">Dashboard</a>
         </div>
-        <button class="mobile-menu-btn" id="landing-menu-btn" aria-label="Menu">
-          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        </button>
       </div>
     </nav>
 
-    <section class="hero">
-      <div class="hero-inner">
-        <div class="hero-badge">Algorithmic Trading Bot</div>
-        <h1 class="hero-title">Trade Binance listings<br/>before the crowd.</h1>
-        <p class="hero-sub">
-          Announce &amp; Bounce monitors Binance announcements in real-time. When a new listing is detected, it executes on MEXC within seconds — capturing the price impact before it fades.
-        </p>
-        <div class="hero-actions">
-          <button class="btn btn-primary btn-lg" onclick="enterDashboard()">
-            Open Dashboard →
-          </button>
-          <a href="#how-it-works" class="btn btn-ghost btn-lg">Learn More</a>
+    <!-- HERO ─────────────────────────────────────────────── -->
+    <header class="lv2-hero">
+      <canvas id="hero-3d-bg" aria-hidden="true"></canvas>
+      <div class="lv2-wrap lv2-hero-grid">
+        <div>
+          <p class="lv2-hero-eyebrow">Marmara MIS · Thesis Research</p>
+          <h1 class="lv2-hero-title">
+            Trading the<br/>
+            <em>announcement,</em><br/>
+            not the rumor.
+          </h1>
+          <p class="lv2-hero-lede">
+            An event-driven spot bot that reads Binance's official feed in real time. When a coin enters the Binance ecosystem for the first time, the bot buys it on MEXC where it already trades. When Binance announces a delisting or monitoring tag, it sells.
+          </p>
+          <div class="lv2-hero-actions">
+            <a href="#overview" class="lv2-cta" onclick="enterDashboard()">
+              Open dashboard <span class="lv2-cta-arrow">→</span>
+            </a>
+            <a href="#strategy" class="lv2-link-quiet">Read the method</a>
+          </div>
         </div>
-        <div class="hero-stats">
-          <div class="hero-stat">
-            <span class="hero-stat-value" id="hero-wr">—</span>
-            <span class="hero-stat-label">Win Rate (OOS)</span>
+
+        <aside class="lv2-hero-data" aria-label="Out-of-sample headline metrics">
+          <div class="lv2-stat-block">
+            <span class="lv2-stat-value is-pos" id="hero-return">+87.78<span style="font-size:0.45em;color:var(--lv2-ink-faint);margin-left:0.05em">%</span></span>
+            <span class="lv2-stat-label">OOS cumulative return</span>
           </div>
-          <div class="hero-stat-divider"></div>
-          <div class="hero-stat">
-            <span class="hero-stat-value" id="hero-trades">—</span>
-            <span class="hero-stat-label">Trades Executed</span>
+          <div class="lv2-stat-block">
+            <span class="lv2-stat-value" id="hero-wr">81.2<span style="font-size:0.45em;color:var(--lv2-ink-faint);margin-left:0.05em">%</span></span>
+            <span class="lv2-stat-label" data-hero-wr-label>Win rate · 64 trades</span>
           </div>
-          <div class="hero-stat-divider"></div>
-          <div class="hero-stat">
-            <span class="hero-stat-value" id="hero-latency">&lt;5s</span>
-            <span class="hero-stat-label">Detection Latency</span>
+          <div class="lv2-stat-block">
+            <span class="lv2-stat-value is-accent" id="hero-pf">15.01</span>
+            <span class="lv2-stat-label">Profit factor</span>
           </div>
-          <div class="hero-stat-divider"></div>
-          <div class="hero-stat">
-            <span class="hero-stat-value" id="hero-pf">—</span>
-            <span class="hero-stat-label">Profit Factor</span>
+        </aside>
+      </div>
+    </header>
+
+    <!-- STRATEGY ─────────────────────────────────────────── -->
+    <section class="lv2-section" id="strategy">
+      <div class="lv2-wrap">
+        <div class="lv2-section-head">
+          <p class="lv2-section-meta">§ 01 — Strategy</p>
+          <h2 class="lv2-section-title">
+            Four rules.<br/>
+            <em>Two directions.</em><br/>
+            Spot only.
+          </h2>
+        </div>
+
+        <div class="lv2-strategy">
+          <article class="lv2-strategy-item">
+            <p class="lv2-strategy-tag is-buy">↗ Buy · MEXC</p>
+            <h3 class="lv2-strategy-title">First Binance ecosystem entry</h3>
+            <p class="lv2-strategy-body">
+              When Binance publishes the first listing-related announcement for a coin — spot, futures, Hodler airdrop, Launchpool or Launchpad — the bot buys the coin on MEXC where it already trades. Calibrated exit: <code>TP +25%</code> / <code>SL −8%</code> / <code>1h time stop</code>.
+            </p>
+          </article>
+
+          <article class="lv2-strategy-item">
+            <p class="lv2-strategy-tag is-sell">↘ Sell · Binance</p>
+            <h3 class="lv2-strategy-title">Delisting announcement</h3>
+            <p class="lv2-strategy-body">
+              <em>"Will Delist X"</em> triggers an immediate market sell on any open position. OOS mean drop is <code>−7.75%</code> at five minutes and <code>−17.30%</code> by eight hours <span style="color:var(--lv2-ink-faint)">(p &lt; 0.0001)</span>. Acting at the next bar avoids the deep tail.
+            </p>
+          </article>
+
+          <article class="lv2-strategy-item">
+            <p class="lv2-strategy-tag is-sell">↘ Sell · Binance</p>
+            <h3 class="lv2-strategy-title">Monitoring tag added</h3>
+            <p class="lv2-strategy-body">
+              Binance's documented precursor to delisting. The short-term reaction is diffuse — <code>−1.27%</code> at five minutes — but the drift compounds to <code>−5.56%</code> over 24h. Median lead time to actual delisting in the OOS sample: <strong>42 days.</strong>
+            </p>
+          </article>
+
+          <article class="lv2-strategy-item">
+            <p class="lv2-strategy-tag is-skip">— Skip</p>
+            <h3 class="lv2-strategy-title">Everything else</h3>
+            <p class="lv2-strategy-body">
+              Maintenance windows, regulatory notes, partnership integrations, promotional campaigns. None produce a tradeable edge after rigorous in-sample testing. The bot logs them and moves on.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- NUMBERS ──────────────────────────────────────────── -->
+    <section class="lv2-section" id="numbers">
+      <div class="lv2-wrap">
+        <div class="lv2-section-head">
+          <p class="lv2-section-meta">§ 02 — Evidence</p>
+          <h2 class="lv2-section-title">
+            Out-of-sample,<br/>
+            <em>frozen parameters,</em><br/>
+            real prices.
+          </h2>
+        </div>
+
+        <div class="lv2-numbers">
+          <div class="lv2-num-cell">
+            <span class="lv2-num-label">Cumulative return</span>
+            <p class="lv2-num-value is-pos">+87.78<span class="lv2-num-unit">%</span></p>
+            <p class="lv2-num-foot">64 trades over 11 months on MEXC, after fees and slippage. $10,000 → $18,778.</p>
+          </div>
+          <div class="lv2-num-cell">
+            <span class="lv2-num-label">Win rate</span>
+            <p class="lv2-num-value">81.2<span class="lv2-num-unit">%</span></p>
+            <p class="lv2-num-foot">30 take-profit hits, 22 profitable time stops, 5 losing time stops, 7 stop-loss.</p>
+          </div>
+          <div class="lv2-num-cell">
+            <span class="lv2-num-label">Profit factor</span>
+            <p class="lv2-num-value is-accent">15.01</p>
+            <p class="lv2-num-foot">Gross winners ÷ |gross losers|. Standard threshold: anything above 2 is considered strong.</p>
+          </div>
+          <div class="lv2-num-cell">
+            <span class="lv2-num-label">Maximum drawdown</span>
+            <p class="lv2-num-value">1.58<span class="lv2-num-unit">%</span></p>
+            <p class="lv2-num-foot">Peak-to-trough on equity. Fixed $1,000 per trade on a $10,000 starting balance.</p>
+          </div>
+          <div class="lv2-num-cell">
+            <span class="lv2-num-label">Delisting drop · t+5m</span>
+            <p class="lv2-num-value" style="color:var(--lv2-neg)">−7.75<span class="lv2-num-unit">%</span></p>
+            <p class="lv2-num-foot">Mean across 38 OOS delisting announcements. p &lt; 0.0001. Defensive sell triggers here.</p>
+          </div>
+          <div class="lv2-num-cell">
+            <span class="lv2-num-label">Monitoring drop · t+24h</span>
+            <p class="lv2-num-value" style="color:var(--lv2-neg)">−5.56<span class="lv2-num-unit">%</span></p>
+            <p class="lv2-num-foot">Mean across 38 OOS monitoring-tag announcements. Slower decay, same direction.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- HOW IT WORKS -->
-    <section class="section section-alt" id="how-it-works">
-      <div class="section-inner">
-        <div class="section-label">How It Works</div>
-        <h2 class="section-title">Four steps. Fully automated.</h2>
-        <p class="section-sub">From announcement to profit — no human intervention needed.</p>
-        <div class="steps-grid">
-          <div class="step-card">
-            <div class="step-number">01</div>
-            <h3>Detect</h3>
-            <p>Poll Binance announcement API every 1-2 seconds. Parse every new post in real-time.</p>
+    <!-- RISK ─────────────────────────────────────────────── -->
+    <section class="lv2-section" id="risk">
+      <div class="lv2-wrap">
+        <div class="lv2-section-head">
+          <p class="lv2-section-meta">§ 03 — Risk</p>
+          <h2 class="lv2-section-title">
+            No leverage.<br/>
+            No discretion.<br/>
+            <em>Hard limits.</em>
+          </h2>
+        </div>
+
+        <div class="lv2-risk-list">
+          <div class="lv2-risk-row">
+            <span class="lv2-risk-num">01</span>
+            <span class="lv2-risk-label">Position sizing</span>
+            <p class="lv2-risk-detail">Approximately <code>1%</code> account risk per trade, derived from the 12% stop-loss (size = risk ÷ SL). One symbol, one trade.</p>
           </div>
-          <div class="step-card">
-            <div class="step-number">02</div>
-            <h3>Classify</h3>
-            <p>Is this a first-time Binance listing? Is the coin already on MEXC? Filter noise instantly.</p>
+          <div class="lv2-risk-row">
+            <span class="lv2-risk-num">02</span>
+            <span class="lv2-risk-label">Stop-loss</span>
+            <p class="lv2-risk-detail">Hard SL at <code>−12%</code> from entry, calibrated from the 30th percentile MAE of in-sample winners. Calibration frozen across the OOS window.</p>
           </div>
-          <div class="step-card">
-            <div class="step-number">03</div>
-            <h3>Execute</h3>
-            <p>Market buy on MEXC within seconds. Position sized to 1% account risk.</p>
+          <div class="lv2-risk-row">
+            <span class="lv2-risk-num">03</span>
+            <span class="lv2-risk-label">Time stop</span>
+            <p class="lv2-risk-detail">Forced close at <code>8h</code>. Listing momentum decays fast — Empirica (2024) shows post-listing tokens lose 6.3% in week one.</p>
           </div>
-          <div class="step-card">
-            <div class="step-number">04</div>
-            <h3>Manage</h3>
-            <p>Auto exit: TP (+13.6%), SL, or 8-hour time stop. No manual intervention.</p>
+          <div class="lv2-risk-row">
+            <span class="lv2-risk-num">04</span>
+            <span class="lv2-risk-label">Concurrency</span>
+            <p class="lv2-risk-detail">Maximum <code>3</code> open positions, one per symbol. No portfolio drift, no compounding correlation risk.</p>
+          </div>
+          <div class="lv2-risk-row">
+            <span class="lv2-risk-num">05</span>
+            <span class="lv2-risk-label">Daily loss limit</span>
+            <p class="lv2-risk-detail">Trading halts at <code>−5%</code> daily drawdown. Resumes at next UTC day.</p>
+          </div>
+          <div class="lv2-risk-row">
+            <span class="lv2-risk-num">06</span>
+            <span class="lv2-risk-label">Spot only · paper</span>
+            <p class="lv2-risk-detail">No futures, no leverage. Currently running in paper mode; live deployment is out of scope for the thesis.</p>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- STRATEGY -->
-    <section class="section" id="strategy">
-      <div class="section-inner">
-        <div class="section-label">Strategy Logic</div>
-        <h2 class="section-title">Research-backed. Data-driven.</h2>
-        <p class="section-sub">Every decision rule comes from event study analysis on 47 verified listing events.</p>
-        <div class="strategy-findings">
-          <div class="finding-card">
-            <div class="finding-icon green-bg">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10l3 3 7-7" stroke="#34C77B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            </div>
-            <div>
-              <h4>Spot Listing → BUY on MEXC</h4>
-              <p>Mean +76.6% pump, p &lt; 0.001. Primary trade signal. Buy pre-listed coin on MEXC before Binance trading opens.</p>
-            </div>
-          </div>
-          <div class="finding-card">
-            <div class="finding-icon red-bg">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M6 6l8 8M14 6l-8 8" stroke="#E5484D" stroke-width="2" stroke-linecap="round"/></svg>
-            </div>
-            <div>
-              <h4>Launchpool / Earn / Airdrop → SKIP</h4>
-              <p>No significant edge found. These are not first-listing signals — excluded after rigorous analysis.</p>
-            </div>
-          </div>
-          <div class="finding-card">
-            <div class="finding-icon amber-bg">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 6v4m0 4h.01" stroke="#F5A524" stroke-width="2" stroke-linecap="round"/></svg>
-            </div>
-            <div>
-              <h4>Delisting → Forced Exit</h4>
-              <p>If holding a delisted coin, exit immediately. Not a trade signal — a risk protection rule.</p>
-            </div>
-          </div>
+    <!-- CLOSING ──────────────────────────────────────────── -->
+    <section class="lv2-closing">
+      <div class="lv2-wrap lv2-closing-grid">
+        <h2 class="lv2-closing-title">
+          The full evidence is<br/>
+          inside the <em>dashboard.</em>
+        </h2>
+        <div class="lv2-closing-meta">
+          <span>Manifest · <span id="manifest-time-lv2">live</span></span>
+          <span>git@<span id="git-head-lv2">main</span></span>
+          <span><span class="lv2-blink">█</span> ready</span>
+          <span style="margin-top:0.6rem">
+            <a href="#overview" class="lv2-link-quiet" onclick="enterDashboard()">Open ↗</a>
+          </span>
         </div>
       </div>
     </section>
 
-    <!-- RISK -->
-    <section class="section section-alt" id="risk">
-      <div class="section-inner">
-        <div class="section-label">Risk Management</div>
-        <h2 class="section-title">Capital protection first.</h2>
-        <p class="section-sub">Every trade has hard limits. No exceptions, no overrides.</p>
-        <div class="risk-grid">
-          <div class="risk-card">
-            <h3>Position Sizing</h3>
-            <p>1% account risk per trade. Max 0.5% of pair volume.</p>
-          </div>
-          <div class="risk-card">
-            <h3>Stop Loss</h3>
-            <p>Hard SL on every trade. Calibrated from historical 30th percentile MAE.</p>
-          </div>
-          <div class="risk-card">
-            <h3>Time Stop</h3>
-            <p>Auto-close after 8 hours. No holding overnight on momentum trades.</p>
-          </div>
-          <div class="risk-card">
-            <h3>Daily Loss Limit</h3>
-            <p>Trading halts at -5% daily drawdown. Resumes next UTC day.</p>
-          </div>
-          <div class="risk-card">
-            <h3>Max 3 Positions</h3>
-            <p>Concurrency cap. No more than 1 trade per asset at once.</p>
-          </div>
-          <div class="risk-card">
-            <h3>Paper Mode</h3>
-            <p>Full pipeline validation without risking real capital first.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- FAQ -->
-    <section class="section" id="faq">
-      <div class="section-inner section-narrow">
-        <div class="section-label">FAQ</div>
-        <h2 class="section-title">Common questions.</h2>
-        <div class="faq-list">
-          <details class="faq-item">
-            <summary>Why buy on MEXC instead of Binance?</summary>
-            <p>When Binance announces a listing, the coin isn't tradeable there yet — but it's often already on MEXC. We buy on MEXC to capture the anticipatory pump before Binance opens trading.</p>
-          </details>
-          <details class="faq-item">
-            <summary>How fast does the bot react?</summary>
-            <p>Under 5 seconds end-to-end: 1-2s detection, &lt;100ms classification, &lt;500ms order submission.</p>
-          </details>
-          <details class="faq-item">
-            <summary>Does this guarantee profits?</summary>
-            <p>No. The strategy shows a statistically significant edge in out-of-sample testing, but markets evolve and past results don't guarantee future performance.</p>
-          </details>
-          <details class="faq-item">
-            <summary>What if there are no announcements?</summary>
-            <p>The bot waits. It only trades when a qualifying signal passes all checks. No forced trades.</p>
-          </details>
-        </div>
-      </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="section cta-section">
-      <div class="section-inner" style="text-align:center">
-        <h2 class="cta-title">See the bot in action.</h2>
-        <p class="cta-sub">Explore the live dashboard with real data.</p>
-        <button class="btn btn-primary btn-lg" onclick="enterDashboard()" style="margin-top:24px">Open Dashboard →</button>
-      </div>
-    </section>
-
-    <footer class="landing-footer">
-      <div class="section-inner">
-        <div class="footer-inner">
-          <span>Announce &amp; Bounce — Thesis Project</span>
-          <span class="muted">Built for academic research. Not financial advice.</span>
-        </div>
+    <footer class="lv2-foot">
+      <div class="lv2-wrap" style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-inline:0">
+        <span>Announce &amp; Bounce — Marmara MIS, 2026</span>
+        <span style="color:var(--lv2-ink-faint)">Built for academic research · Not financial advice</span>
       </div>
     </footer>
   </div>
 
   <!-- ============================================================
-       DASHBOARD — 3 pages: Dashboard, Trades, System
+       DASHBOARD — 2 pages: Dashboard, Trades
        ============================================================ -->
   <div id="dashboard" class="layout" style="display:none">
 
     <aside class="sidebar" id="sidebar">
-      <div class="brand">
-        <div class="brand-logo">A</div>
-        <div>
-          <strong>Announce &amp; Bounce</strong>
-          <small>Trading Bot</small>
-        </div>
-      </div>
+      <a href="#" class="sidebar-brand" onclick="exitDashboard();return false;" aria-label="Announce & Bounce — back to landing">
+        <span class="sidebar-brand-mark">A&amp;B</span>
+        <span class="sidebar-brand-name">Announce <em>&amp;</em> Bounce</span>
+      </a>
 
       <nav id="nav">
         <a data-route="overview" class="active">
@@ -245,9 +269,13 @@
           <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 4h12M2 8h12M2 12h8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>
           Trades
         </a>
-        <a data-route="system">
-          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="2" stroke="currentColor" stroke-width="1.2"/><path d="M8 2v2m0 8v2M2 8h2m8 0h2M3.76 3.76l1.41 1.41m5.66 5.66l1.41 1.41M3.76 12.24l1.41-1.41m5.66-5.66l1.41-1.41" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg></span>
-          System
+        <a data-route="announcements">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 4l10-1v10l-10-1V4z M3 4v6 M13 3v10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          Announcements
+        </a>
+        <a data-route="monitor">
+          <span class="nav-icon"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="currentColor" stroke-width="1.2"/><circle cx="8" cy="8" r="2" fill="currentColor"/></svg></span>
+          Live Monitor
         </a>
       </nav>
 
@@ -264,16 +292,15 @@
 
     <main class="content">
 
-      <!-- STATUS BAR -->
-      <div class="statusbar">
+      <!-- STATUS BAR — OOS headline metrics + mode indicator -->
+      <div class="statusbar topbar">
         <button class="menu-btn" id="menu-btn" aria-label="Menu">
           <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M3 5h12M3 9h12M3 13h12" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
         </button>
-        <span class="pill pill-paper" id="mode-pill">PAPER</span>
-        <span class="status-item">
-          <span class="dot dot-amber" id="bot-dot"></span>
-          <span class="label">Bot</span>
-          <span class="value" id="bot-status">—</span>
+        <span class="topbar-window" id="mode-pill">
+          <span class="topbar-window-dot"></span>
+          <span class="topbar-window-label">Out-of-sample</span>
+          <span class="topbar-window-range">Jun 2025 — May 2026</span>
         </span>
         <span class="status-item">
           <span class="label">Return</span>
@@ -284,14 +311,13 @@
           <span class="value" id="total-trades">—</span>
         </span>
         <span class="status-item">
-          <span class="dot dot-green" id="mexc-dot"></span>
-          <span class="label">MEXC</span>
-          <span class="value" id="mexc-status">connected</span>
+          <span class="label">Win rate</span>
+          <span class="value" id="topbar-wr">—</span>
         </span>
         <span class="spacer"></span>
         <span class="status-item">
-          <span class="label">Sharpe</span>
-          <span class="value" id="sharpe-val">—</span>
+          <span class="label">Profit factor</span>
+          <span class="value" id="topbar-pf">—</span>
         </span>
       </div>
 
@@ -360,69 +386,87 @@
       <section class="page" id="page-trades">
         <header class="page-header">
           <h1>Trade History</h1>
-          <p class="subtitle">Every trade the bot executed — entry, exit, and result.</p>
+          <p class="subtitle">Every trade the bot executed — entry, exit, and result. Out-of-sample (64 trades).</p>
         </header>
         <div class="kpi-grid" id="trades-kpis"></div>
         <div class="card">
           <div class="card-header"><h2>All Trades</h2><span class="hint" id="trades-count">—</span></div>
           <div class="table-wrap">
             <table id="trades-table">
-              <thead><tr><th>Entry Time</th><th>Symbol</th><th>Category</th><th>Exit</th><th class="num">Return %</th><th class="num">P&amp;L</th><th class="num">Duration</th><th class="num">Equity After</th></tr></thead>
-              <tbody><tr><td colspan="8" class="muted">Loading...</td></tr></tbody>
+              <thead><tr><th>Entry Time</th><th>Symbol</th><th>Category</th><th>Exit</th><th class="num">Return %</th><th class="num">P&amp;L</th><th class="num">Equity After</th></tr></thead>
+              <tbody><tr><td colspan="7" class="muted">Loading...</td></tr></tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <!-- ===== PAGE: SYSTEM ===== -->
-      <section class="page" id="page-system">
+      <!-- ===== PAGE: ANNOUNCEMENTS ===== -->
+      <section class="page" id="page-announcements">
         <header class="page-header">
-          <h1>System</h1>
-          <p class="subtitle">Connections, latency, and strategy parameters.</p>
+          <h1>Announcements</h1>
+          <p class="subtitle">Every Binance announcement the bot ingested — with its categorization and decision.</p>
         </header>
 
-        <div class="grid-2-equal">
-          <div class="card">
-            <div class="card-header"><h2>API Connections</h2><span class="hint">exchange status</span></div>
-            <div>
-              <div class="stat-row"><span class="k">Binance CMS API</span><span class="v"><span class="dot dot-green" style="margin-right:6px"></span>Polling</span></div>
-              <div class="stat-row"><span class="k">MEXC REST API</span><span class="v"><span class="dot dot-green" style="margin-right:6px"></span>Connected</span></div>
-              <div class="stat-row"><span class="k">MEXC WebSocket</span><span class="v"><span class="dot dot-amber" style="margin-right:6px"></span>Standby</span></div>
-              <div class="stat-row"><span class="k">Poll Interval</span><span class="v">1-2 seconds</span></div>
-              <div class="stat-row"><span class="k">Classification</span><span class="v">&lt; 100ms (rule-based)</span></div>
+        <div class="kpi-grid" id="ann-kpis"></div>
+
+        <div class="card">
+          <div class="card-header" style="flex-wrap:wrap;gap:12px">
+            <h2>Filter</h2>
+            <div class="ann-filters" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <input type="text" id="ann-search" placeholder="Search asset or title…" class="ann-search-input" />
+              <div class="ann-chips" id="ann-cat-chips"></div>
+              <div class="ann-chips" id="ann-dec-chips"></div>
             </div>
           </div>
+          <div class="table-wrap" style="max-height:640px;overflow-y:auto">
+            <table id="ann-table">
+              <thead><tr><th>Time</th><th>Asset</th><th>Category</th><th>Decision</th><th>Title</th><th>Reason</th></tr></thead>
+              <tbody><tr><td colspan="6" class="muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ===== PAGE: LIVE MONITOR ===== -->
+      <section class="page" id="page-monitor">
+        <header class="page-header">
+          <h1>Live Monitor</h1>
+          <p class="subtitle">Real-time bot status, connections, latency, and open positions.</p>
+        </header>
+
+        <div class="monitor-status-bar" id="monitor-status-bar">
+          <div class="muted" style="padding:24px">Loading bot state…</div>
+        </div>
+
+        <div class="grid-2" style="margin-top:16px">
           <div class="card">
-            <div class="card-header"><h2>Detection Latency</h2><span class="hint">target &lt; 5s</span></div>
-            <div>
-              <div class="stat-row"><span class="k">p50 (median)</span><span class="v" id="lat-p50">—</span></div>
-              <div class="stat-row"><span class="k">p95</span><span class="v" id="lat-p95">—</span></div>
-              <div class="stat-row"><span class="k">max</span><span class="v" id="lat-max">—</span></div>
-            </div>
+            <div class="card-header"><h2>Connections</h2><span class="hint">data feeds</span></div>
+            <div id="monitor-connections"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2>Detection Latency</h2><span class="hint">announcement → signal</span></div>
+            <div id="monitor-latency"></div>
           </div>
         </div>
 
-        <div class="grid-2-equal" style="margin-top:16px">
+        <div class="card" style="margin-top:16px">
+          <div class="card-header"><h2>Open Positions</h2><span class="hint" id="monitor-pos-count">—</span></div>
+          <div class="table-wrap">
+            <table id="monitor-positions">
+              <thead><tr><th>Symbol</th><th>Venue</th><th>Entry Time</th><th class="num">Entry Price</th><th class="num">TP</th><th class="num">SL</th><th>Time Stop</th></tr></thead>
+              <tbody><tr><td colspan="7" class="muted">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top:16px">
           <div class="card">
-            <div class="card-header"><h2>Strategy Parameters</h2><span class="hint">frozen — M0</span></div>
-            <div>
-              <div class="stat-row"><span class="k">Take-profit</span><span class="v">+13.64%</span></div>
-              <div class="stat-row"><span class="k">Stop-loss</span><span class="v">-13.07%</span></div>
-              <div class="stat-row"><span class="k">Time-stop</span><span class="v">480 min (8h)</span></div>
-              <div class="stat-row"><span class="k">Slippage</span><span class="v">15 bps</span></div>
-              <div class="stat-row"><span class="k">Fee per leg</span><span class="v">0.1%</span></div>
-              <div class="stat-row"><span class="k">Model</span><span class="v">M0 (category-only)</span></div>
-            </div>
+            <div class="card-header"><h2>By Category</h2><span class="hint">all-time</span></div>
+            <div id="monitor-by-cat"></div>
           </div>
           <div class="card">
-            <div class="card-header"><h2>Risk Limits</h2><span class="hint">active rules</span></div>
-            <div>
-              <div class="stat-row"><span class="k">Position sizing</span><span class="v">1% risk / SL</span></div>
-              <div class="stat-row"><span class="k">Max concurrent</span><span class="v">3 positions</span></div>
-              <div class="stat-row"><span class="k">Max per asset</span><span class="v">1</span></div>
-              <div class="stat-row"><span class="k">Daily loss limit</span><span class="v">5%</span></div>
-              <div class="stat-row"><span class="k">Mode</span><span class="v" style="color:var(--warning)">PAPER</span></div>
-            </div>
+            <div class="card-header"><h2>By Exit Reason</h2><span class="hint">all-time</span></div>
+            <div id="monitor-by-exit"></div>
           </div>
         </div>
       </section>
@@ -430,6 +474,84 @@
     </main>
   </div>
 
-  <script src="/static/app.js?v=2"></script>
+  <script src="/static/app.js?v=20260527j"></script>
+  <script src="/static/enhancements.js?v=3" defer></script>
+
+  <!-- Subtle three.js background in hero — editorial, non-intrusive -->
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+  </script>
+  <script type="module">
+    import * as THREE from "three";
+
+    const canvas = document.getElementById("hero-3d-bg");
+    if (canvas && window.matchMedia("(min-width: 720px)").matches) {
+      const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
+      camera.position.set(0, 0, 7);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+
+      // Wireframe torus knot — kalın, yavaş dönen ana eleman
+      const knotGeo = new THREE.TorusKnotGeometry(1.4, 0.32, 180, 24);
+      const knotMat = new THREE.MeshBasicMaterial({
+        color: 0xff6d29,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.18,
+      });
+      const knot = new THREE.Mesh(knotGeo, knotMat);
+      knot.position.set(2.6, 0.1, 0);
+      scene.add(knot);
+
+      // Yumuşak particle field (sade)
+      const pCount = 220;
+      const positions = new Float32Array(pCount * 3);
+      for (let i = 0; i < pCount; i++) {
+        positions[i * 3 + 0] = (Math.random() - 0.5) * 16;
+        positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+        positions[i * 3 + 2] = (Math.random() - 0.5) * 6 - 2;
+      }
+      const pGeo = new THREE.BufferGeometry();
+      pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+      const pMat = new THREE.PointsMaterial({
+        color: 0xff6d29,
+        size: 0.045,
+        transparent: true,
+        opacity: 0.35,
+        sizeAttenuation: true,
+      });
+      const points = new THREE.Points(pGeo, pMat);
+      scene.add(points);
+
+      function resize() {
+        const rect = canvas.getBoundingClientRect();
+        renderer.setSize(rect.width, rect.height, false);
+        camera.aspect = rect.width / Math.max(rect.height, 1);
+        camera.updateProjectionMatrix();
+      }
+      resize();
+      window.addEventListener("resize", resize);
+
+      const start = performance.now();
+      let frameId;
+      function tick(now) {
+        const t = (now - start) / 1000;
+        if (!reduce) {
+          knot.rotation.x = t * 0.18;
+          knot.rotation.y = t * 0.24;
+          points.rotation.y = t * 0.03;
+        }
+        renderer.render(scene, camera);
+        frameId = requestAnimationFrame(tick);
+      }
+      tick(performance.now());
+
+      // Cleanup if navigating away (single-page swap)
+      window.addEventListener("beforeunload", () => cancelAnimationFrame(frameId));
+    }
+  </script>
 </body>
 </html>

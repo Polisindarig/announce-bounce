@@ -1,0 +1,8 @@
+# OOS backtest restricted to spot listing announcements.
+events_path: data/processed/events.parquet
+window_config: config/data_window.yaml
+horizon_col: ret_15m
+catalog_filter:
+  - new_cryptocurrency_listing
+fee_roundtrip: 0.002
+slippage_each_leg: 0.00075

@@ -1,8 +1,50 @@
-# Data — never commit
+# Data — heavy intermediates excluded; ship only the slim dashboard set.
 data/raw/
-data/processed/
+data/processed/*
 data/labeled/*.csv
 !data/labeled/.gitkeep
+
+# Whitelist: the ~1.7 MB the dashboard actually reads at serve time.
+!data/processed/backtest_m0_result.json
+!data/processed/phase6_oos_result.json
+!data/processed/events.parquet
+!data/processed/events_summary.json
+!data/processed/phase4_event_study.json
+!data/processed/phase7_robustness.json
+!data/processed/reproducibility_manifest.json
+!data/processed/listing_backtest_report.json
+!data/processed/listing_backtest_report_balanced.json
+!data/processed/listing_binance_vs_mexc.json
+!data/processed/listing_event_study_fdr.json
+!data/processed/listing_spot_mexc_event_study.json
+!data/processed/sentiment_analysis_summary.json
+!data/processed/tier1_event_study_fdr.json
+
+# Heavy ML-only data the dashboard never touches
+data/processed/klines/
+data/processed/*.parquet
+!data/processed/events.parquet
+data/processed/finbert_*.json
+data/processed/cryptobert_*.json
+data/processed/strategy_*.csv
+data/processed/universe_*.csv
+data/processed/*_pumps_*.csv
+data/processed/sl_tp_*.csv
+data/processed/oos_equity_curve.csv
+
+# Local backups
+data/processed/*.bak
+data/processed/*.pre_v4_update.bak
+
+# IDE / agent caches
+.claude/
+.cursor/
+
+# Thesis sources (10 MB Word doc + figures — not needed by dashboard)
+thesis/
+
+# Notebooks
+notebooks/
 
 # Backtest outputs
 backtest/results/*.json

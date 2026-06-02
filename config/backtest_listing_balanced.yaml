@@ -1,0 +1,8 @@
+# Listing backtest with balanced IS/OOS (see config/listing_eval_window.yaml).
+events_path: data/processed/events.parquet
+window_config: config/listing_eval_window.yaml
+horizon_col: ret_15m
+catalog_filter:
+  - new_cryptocurrency_listing
+fee_roundtrip: 0.002
+slippage_each_leg: 0.00075

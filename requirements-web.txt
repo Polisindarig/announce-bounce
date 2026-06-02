@@ -1,0 +1,11 @@
+# Slim production deps for the dashboard only.
+# Heavy ML/scraping deps (torch, transformers, playwright, spacy)
+# from requirements.txt are NOT needed at serve time — the dashboard
+# only reads pre-computed JSON + Parquet artefacts.
+
+fastapi>=0.115
+uvicorn[standard]>=0.32
+pandas>=2.2
+numpy>=1.26
+pyarrow>=15.0
+python-dateutil>=2.9

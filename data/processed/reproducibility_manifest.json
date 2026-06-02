@@ -1,0 +1,17 @@
+{
+  "generated_at": "2026-05-16T11:34:46.019011+00:00",
+  "git_head": "21e8fbf46dc8289f52efe87deed751a11cefe93d",
+  "configs": {
+    "config/data_window.yaml": "84144062b6f1ac234312362f5ab73f53ca32adf8a5b5beb8420a6a75b892d612",
+    "config/listing_eval_window.yaml": "7b0d63ec7f8dbb452b96d190aba669cc7277ef52b2c2c9ac43fe00e53b9c31d4",
+    "config/oos.yaml": "ca7af5f9ab2b54699497316ba83faeee1f5c5b6e31aa926496a3a83468e54d53",
+    "config/backtest_baseline.yaml": "64ccc28d31ba6befdd9afd36222d9326e9be7c2af6aa3b876c148286386979ed"
+  },
+  "artifacts": {
+    "data/processed/events.parquet": "9a3c0c3bcb06d550cea12fc677a2ed806c60a77310392c516feef7ca786e07fc",
+    "data/processed/train_baseline_report.json": "370e1faa8c4055b3983854f3a391b00c91e3f09e1e94f230995ba1bcf0f592e2",
+    "data/processed/backtest_oos_summary.json": "8d25db27a587d309a2bf149803c7a76cbb5418f3d2dcd66d93e50238567977ae",
+    "data/processed/listing_backtest_report.json": "3c7080701444c88f823a57fe49045a6b017f3f6b27420b69264bc79fa587cac9",
+    "data/processed/tier1_event_study_fdr.json": "9594a9d9b777994ed46e5c1d1f6718dac13ddab1f66aa91a0309874430bca868"
+  }
+}

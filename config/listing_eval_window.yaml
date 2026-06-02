@@ -1,0 +1,13 @@
+# Supplementary listing-only IS/OOS split (sensitivity analysis).
+# Primary pre-registered split remains config/data_window.yaml.
+# ~50/50 listing events: 94 IS / 89 OOS at 2025-10-01 cut.
+
+data_extraction_date: "2026-05-14"
+window_start: "2025-06-01"
+window_end: "2026-05-14"
+
+in_sample_start: "2025-06-01"
+in_sample_end: "2025-09-30"
+
+oos_start: "2025-10-01"
+oos_end: "2026-05-14"
