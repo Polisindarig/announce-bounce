@@ -512,14 +512,38 @@ def recent_announcements() -> list[dict[str, Any]]:
             return [_item("SKIP", "Non-trading category")]
 
         # ── Other categories: explain why we skip ───────────────────────
+        # Bullish-bucket categories (Filter 1 mantığına göre): coin'in
+        # ilk anonsuysa BUY tetiklenir; "is_listing_title" pattern'i
+        # tutmadığı için buraya düşenler ya "already announced" ya da
+        # filter-3 (MEXC) gibi operasyonel sebeplerden skip edilmiş demek.
         if cat == "LISTING_SPOT":
-            return [_item("SKIP", "Not tradeable on MEXC")]
+            if sym and sym in bought_symbols:
+                return [_item("SKIP", "Already bought (first signal taken)")]
+            return [_item("SKIP", "Spot listing — fails Filter 2/3 (already on Binance or no MEXC pair)")]
         if cat == "LISTING_FUTURES":
-            return [_item("SKIP", "Futures only — not first listing")]
+            if sym and sym in bought_symbols:
+                return [_item("SKIP", "Already bought (first signal taken)")]
+            return [_item("SKIP", "Futures listing — bullish bucket but coin fails Filter 2/3")]
         if cat == "LAUNCHPOOL_LAUNCHPAD":
-            return [_item("SKIP", "No significant edge (p > 0.05)")]
+            if sym and sym in bought_symbols:
+                return [_item("SKIP", "Already bought (first signal taken)")]
+            return [_item("SKIP", "Launchpool — bullish bucket but coin fails Filter 2/3")]
+        if cat == "HODLER_AIRDROP":
+            if sym and sym in bought_symbols:
+                return [_item("SKIP", "Already bought (first signal taken)")]
+            return [_item("SKIP", "Hodler airdrop — bullish bucket but coin fails Filter 2/3")]
         if cat == "STAKING_EARN":
-            return [_item("SKIP", "Not a first-listing signal")]
+            return [_item("SKIP", "Staking/Earn — outside the four bullish-bucket triggers")]
+        if cat == "MAINTENANCE_SUSPENSION":
+            return [_item("SKIP", "Wallet maintenance — neutral, no trade")]
+        if cat == "REGULATORY":
+            return [_item("SKIP", "Regulatory notice — neutral, no trade")]
+        if cat == "PARTNERSHIP_INTEGRATION":
+            return [_item("SKIP", "Partnership / integration — too noisy to trade")]
+        if cat == "SECURITY_INCIDENT":
+            return [_item("SKIP", "Security incident — folded into OTHER bucket")]
+        if cat == "OTHER":
+            return [_item("SKIP", "Other / promo — no actionable signal")]
         return [_item("SKIP", "Non-trading category")]
 
     buy_feed: list[dict[str, Any]] = []
@@ -544,7 +568,9 @@ def recent_announcements() -> list[dict[str, Any]]:
                 buy_feed.append(item)
             elif item["decision"] == "SELL":
                 sell_feed.append(item)
-            elif len(skip_feed) < 25:
+            else:
+                # No cap: every OOS-window announcement appears in the
+                # feed (BUY / SELL / SKIP with a reason).
                 skip_feed.append(item)
 
     # Many OOS trades don't have a corresponding listing-style row in
