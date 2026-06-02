@@ -5,7 +5,7 @@
 
 services:
   - type: web
-    name: announce-and-bounce
+    name: announce-bounce
     runtime: python
     plan: free
     region: frankfurt
