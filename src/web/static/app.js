@@ -789,15 +789,20 @@ async function loadAnnouncements() {
     kpis.appendChild(kpiCard("Skipped", fmtInt(skips), "no tradeable edge"));
   }
 
-  // Filter chips
+  // Filter chips — kept on outer scope so click handlers can re-render them.
   const cats = Array.from(new Set(data.map(a => a.category).filter(Boolean))).sort();
   const decs = Array.from(new Set(data.map(a => a.decision).filter(Boolean))).sort();
-  renderChips("ann-cat-chips", ["ALL", ...cats], _annState.cat, (val) => {
-    _annState.cat = val; renderAnnTable();
-  });
-  renderChips("ann-dec-chips", ["ALL", ...decs], _annState.dec, (val) => {
-    _annState.dec = val; renderAnnTable();
-  });
+  const catValues = ["ALL", ...cats];
+  const decValues = ["ALL", ...decs];
+  const drawChips = () => {
+    renderChips("ann-cat-chips", catValues, _annState.cat, (val) => {
+      _annState.cat = val; drawChips(); renderAnnTable();
+    });
+    renderChips("ann-dec-chips", decValues, _annState.dec, (val) => {
+      _annState.dec = val; drawChips(); renderAnnTable();
+    });
+  };
+  drawChips();
 
   // Search input
   const search = document.getElementById("ann-search");
