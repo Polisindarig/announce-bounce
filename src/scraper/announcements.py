@@ -81,11 +81,16 @@ HEADERS = {
     "Referer": f"{BASE_URL}/en/support/announcement",
 }
 
+# Historical bulk-scrape pacing — conservative to avoid 429 on long backfills.
 REQUEST_DELAY_S = 7.0
 # Extra pause between catalogs to reduce 429 bursts when scraping many categories back-to-back.
 INTER_CATALOG_PAUSE_S = 20.0
 # When a list page has only already-seen IDs, skip long pacing (resume feels instant).
 MIN_PAGE_SLEEP_S = 0.5
+# Live-mode polling cadence used by the production loop.
+# End-to-end announcement → MEXC order budget: 3-7 seconds
+#   (≤1 s detection polling + classify + 4-filter + ccxt market order).
+LIVE_POLL_INTERVAL_S = 1.0
 PAGE_SIZE = 20
 
 

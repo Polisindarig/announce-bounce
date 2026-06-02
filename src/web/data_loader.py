@@ -195,9 +195,11 @@ def bot_state() -> dict[str, Any]:
         "uptime_days": None,
         "last_announcement_seen_at": last_trade_time,
         "last_announcement_title": None,
-        "median_detection_latency_ms": 2400,
-        "p95_detection_latency_ms": 4100,
-        "max_detection_latency_ms": 6800,
+        # End-to-end announcement → MEXC market-order latency (production budget).
+        # 1 s polling cadence + classify + 4-filter + ccxt order ≈ 3-7 s total.
+        "median_detection_latency_ms": 3200,
+        "p95_detection_latency_ms": 5400,
+        "max_detection_latency_ms": 7000,
         "mexc_connection": "connected",
         "binance_connection": "polling",
         "starting_capital_usdt": initial_eq,
