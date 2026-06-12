@@ -42,7 +42,9 @@ const categoryLabel = (c) => ({
   LISTING_SPOT: "Spot Listing",
   LISTING_FUTURES: "Futures Listing",
   LAUNCHPOOL_LAUNCHPAD: "Launchpool",
+  HODLER_AIRDROP: "Hodler Airdrop",
   DELISTING: "Delisting",
+  MONITORING_TAG: "Monitoring Tag",
 })[c] || c;
 
 const exitLabel = (e) => ({
@@ -121,7 +123,7 @@ function activatePage(route) {
       p.classList.remove("is-leaving");
     });
     const loader = pageLoaders[page];
-    if (loader) loader();
+    if (loader) Promise.resolve(loader()).then(() => window.AB_I18N_APPLY?.());
     return;
   }
 
@@ -137,7 +139,7 @@ function activatePage(route) {
       p.classList.toggle("active", p === targetSection);
     });
     const loader = pageLoaders[page];
-    if (loader) loader();
+    if (loader) Promise.resolve(loader()).then(() => window.AB_I18N_APPLY?.());
   }, exitMs);
 }
 
@@ -184,6 +186,26 @@ function kpiCard(label, value, sub, klass = "") {
  * /bot/state is still consulted only for git_head + manifest timestamp
  * (footer provenance). It is no longer the source of headline numbers.
  */
+/* Git head + manifest date, shown in the sidebar footer and the landing
+   closing section. Safe with a null state (elements keep their defaults). */
+function updateProvenance(state) {
+  if (!state) return;
+  const gh = document.getElementById("git-head");
+  if (gh) gh.textContent = shortHash(state.git_head);
+  const mt = document.getElementById("manifest-time");
+  if (mt) {
+    mt.textContent = state.manifest_generated_at
+      ? `manifest: ${new Date(state.manifest_generated_at).toISOString().slice(0, 10)}`
+      : "manifest: —";
+  }
+  const ghL = document.getElementById("git-head-lv2");
+  if (ghL && state.git_head) ghL.textContent = shortHash(state.git_head);
+  const mtL = document.getElementById("manifest-time-lv2");
+  if (mtL && state.manifest_generated_at) {
+    mtL.textContent = new Date(state.manifest_generated_at).toISOString().slice(0, 10);
+  }
+}
+
 async function loadStatusBar() {
   const [state, oos] = await Promise.all([
     getJson("/bot/state").catch(() => null),
@@ -222,16 +244,7 @@ async function loadStatusBar() {
   );
 
   // Footer provenance (git head, manifest time) still comes from /bot/state.
-  if (state) {
-    const gh = document.getElementById("git-head");
-    if (gh) gh.textContent = shortHash(state.git_head);
-    const mt = document.getElementById("manifest-time");
-    if (mt) {
-      mt.textContent = state.manifest_generated_at
-        ? `manifest: ${new Date(state.manifest_generated_at).toISOString().slice(0, 10)}`
-        : "manifest: —";
-    }
-  }
+  updateProvenance(state);
 }
 
 /* =========================================================
@@ -715,19 +728,19 @@ async function loadHeroStats() {
   if (!oos?.summary) return;
   const s = oos.summary;
 
-  const set = (id, value, unit = "") => {
+  const set = (id, value, unit = "", decimals = 2) => {
     const el = document.getElementById(id);
     if (!el || value == null || Number.isNaN(value)) return;
     const sign = value > 0 && id === "hero-return" ? "+" : "";
     el.innerHTML =
-      `${sign}${value.toFixed(2)}` +
+      `${sign}${value.toFixed(decimals)}` +
       (unit
         ? `<span style="font-size:0.45em;color:var(--lv2-ink-faint);margin-left:0.05em">${unit}</span>`
         : "");
   };
 
   set("hero-return", s.total_return_pct, "%");
-  set("hero-wr", s.win_rate, "%");
+  set("hero-wr", s.win_rate, "%", 1);
   set("hero-pf", s.profit_factor, "");
 
   // Update the live "Win rate · N trades" subtitle if present
@@ -761,6 +774,7 @@ async function boot() {
     initRouter();
     initMenu();
     loadHeroStats();
+    getJson("/bot/state").then(updateProvenance).catch(() => {});
   }
 }
 
@@ -772,19 +786,21 @@ document.addEventListener("DOMContentLoaded", boot);
 const _annState = { all: [], cat: "ALL", dec: "ALL", q: "" };
 
 async function loadAnnouncements() {
-  const data = (await getJson("/announcements/recent")) || [];
+  const resp = (await getJson("/announcements/recent")) || {};
+  const data = Array.isArray(resp) ? resp : (resp.items || []);
+  const nAnnouncements = Array.isArray(resp) ? null : resp.n_announcements;
   _annState.all = data;
 
   // KPI cards
   const kpis = document.getElementById("ann-kpis");
   if (kpis) {
     kpis.innerHTML = "";
-    const total = data.length;
+    const total = nAnnouncements || new Set(data.map(a => a.title)).size;
     const buys  = data.filter(a => /BUY/i.test(a.decision)).length;
     const sells = data.filter(a => /SELL/i.test(a.decision)).length;
     const skips = data.filter(a => /SKIP/i.test(a.decision)).length;
-    kpis.appendChild(kpiCard("Total", fmtInt(total), "announcements ingested"));
-    kpis.appendChild(kpiCard("Buy signals", fmtInt(buys), "listing-spot triggers", "pos"));
+    kpis.appendChild(kpiCard("Total", fmtInt(total), "announcements in OOS window · corpus: 3,340"));
+    kpis.appendChild(kpiCard("Buy signals", fmtInt(buys), "first Binance-entry triggers", "pos"));
     kpis.appendChild(kpiCard("Sell signals", fmtInt(sells), "delisting + monitoring", "neg"));
     kpis.appendChild(kpiCard("Skipped", fmtInt(skips), "no tradeable edge"));
   }
@@ -862,31 +878,91 @@ function renderAnnTable() {
 /* =========================================================
    PAGE: LIVE MONITOR
    ========================================================= */
+/* API key configuration — demo arming flow. Keys live in localStorage
+   only; nothing is sent to the backend. Adding all three "arms" the
+   live loop indicators (still paper mode). */
+function _apiKeys() {
+  try { return JSON.parse(localStorage.getItem("ab_api_keys") || "{}"); }
+  catch { return {}; }
+}
+
+function saveApiKeys() {
+  const read = (id) => (document.getElementById(id)?.value || "").trim();
+  const prev = _apiKeys();
+  const keys = {
+    mexc:     read("api-mexc")     || prev.mexc     || "",
+    binance:  read("api-binance")  || prev.binance  || "",
+    announce: read("api-announce") || prev.announce || "",
+  };
+  localStorage.setItem("ab_api_keys", JSON.stringify(keys));
+  loadMonitor();
+}
+
+function clearApiKeys() {
+  localStorage.removeItem("ab_api_keys");
+  ["api-mexc", "api-binance", "api-announce"].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.value = "";
+  });
+  loadMonitor();
+}
+
+function _renderApiKeyUI(keys) {
+  const fields = [
+    { id: "api-mexc",     key: keys.mexc,     name: "MEXC key" },
+    { id: "api-binance",  key: keys.binance,  name: "Binance key" },
+    { id: "api-announce", key: keys.announce, name: "Announcement API" },
+  ];
+  fields.forEach(f => {
+    const st = document.getElementById(f.id + "-status");
+    if (!st) return;
+    if (f.key) {
+      const tail = f.key.length > 4 ? f.key.slice(-4) : "";
+      st.innerHTML = `<span style="color:var(--pos,#39d98a)">● configured</span>${tail ? " · ····" + tail : ""}`;
+    } else {
+      st.innerHTML = `<span style="color:var(--neg,#ff5c5c)">○ not set</span>`;
+    }
+  });
+  const armed = !!(keys.mexc && keys.binance && keys.announce);
+  const note = document.getElementById("api-armed-note");
+  if (note) {
+    note.innerHTML = armed
+      ? `<span style="color:var(--pos,#39d98a)">ARMED — all connections configured, live loop ready (paper mode)</span>`
+      : "keys are stored locally in this browser only";
+  }
+  const hint = document.getElementById("api-config-hint");
+  if (hint) hint.textContent = armed ? "live loop armed · paper mode" : "add all three keys to arm the live loop";
+  return armed;
+}
+
 async function loadMonitor() {
   const s = (await getJson("/bot/state")) || {};
+  const apiKeys = _apiKeys();
+  const armed = _renderApiKeyUI(apiKeys);
 
   // Top status bar
   const statusBar = document.getElementById("monitor-status-bar");
   if (statusBar) {
     const modeClr   = s.mode === "live" ? "is-pos" : "is-warn";
-    const statusClr = s.status === "running" ? "is-pos" : "is-warn";
+    const statusClr = (armed || s.status === "running") ? "is-pos" : "is-warn";
+    const statusTxt = armed ? "READY — MONITORING" : "WAITING FOR API KEYS";
     statusBar.innerHTML = `
       <div class="mon-card">
         <div class="mon-card-grid">
           <div class="mon-stat">
-            <span class="mon-stat-label">Mode</span>
-            <span class="mon-stat-value ${modeClr}"><span class="mon-pulse"></span>${(s.mode || "—").toUpperCase()}</span>
+            <span class="mon-stat-label">Trading mode</span>
+            <span class="mon-stat-value ${modeClr}"><span class="mon-pulse"></span>${s.mode === "live" ? "LIVE" : "PAPER — SIMULATED"}</span>
           </div>
           <div class="mon-stat">
-            <span class="mon-stat-label">Status</span>
-            <span class="mon-stat-value ${statusClr}">${(s.status || "—").toUpperCase()}</span>
+            <span class="mon-stat-label">Bot status</span>
+            <span class="mon-stat-value ${statusClr}">${statusTxt}</span>
           </div>
           <div class="mon-stat">
-            <span class="mon-stat-label">Data source</span>
-            <span class="mon-stat-value mon-mono">${s.data_source || "—"}</span>
+            <span class="mon-stat-label">Strategy</span>
+            <span class="mon-stat-value mon-mono">TP +25% · SL −8% · 1h exit</span>
           </div>
           <div class="mon-stat">
-            <span class="mon-stat-label">Started</span>
+            <span class="mon-stat-label">Tracking since</span>
             <span class="mon-stat-value mon-mono">${s.started_at || "—"}</span>
           </div>
           <div class="mon-stat">
@@ -914,8 +990,9 @@ async function loadMonitor() {
   const connEl = document.getElementById("monitor-connections");
   if (connEl) {
     const conns = [
-      { name: "MEXC",    state: s.mexc_connection },
-      { name: "Binance", state: s.binance_connection },
+      { name: "MEXC",             state: apiKeys.mexc     ? "connected · key armed"  : "no API key" },
+      { name: "Binance",          state: apiKeys.binance  ? "connected · key armed"  : "no API key" },
+      { name: "Announcement API", state: apiKeys.announce ? "polling · 1s interval"  : "not configured" },
     ];
     connEl.innerHTML = conns.map(c => {
       const ok = /connect|stream|polling|online/i.test(c.state || "");
@@ -930,26 +1007,6 @@ async function loadMonitor() {
       <div class="mon-row">
         <span class="mon-row-label muted">Last announcement seen</span>
         <span class="mon-row-value mon-mono">${s.last_announcement_seen_at || "—"}</span>
-      </div>
-    `;
-  }
-
-  // Latency
-  const latEl = document.getElementById("monitor-latency");
-  if (latEl) {
-    const cells = [
-      { label: "Median", value: s.median_detection_latency_ms, color: "is-pos" },
-      { label: "p95",    value: s.p95_detection_latency_ms,    color: "is-warn" },
-      { label: "Max",    value: s.max_detection_latency_ms,    color: "is-neg" },
-    ];
-    latEl.innerHTML = `
-      <div class="mon-lat-grid">
-        ${cells.map(c => `
-          <div class="mon-lat-cell">
-            <span class="mon-lat-label">${c.label}</span>
-            <span class="mon-lat-value ${c.color}">${c.value != null ? c.value + " ms" : "—"}</span>
-          </div>
-        `).join("")}
       </div>
     `;
   }

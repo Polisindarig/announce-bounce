@@ -665,3 +665,37 @@
     outline-offset: 3px;
   }
 }
+
+/* Mobile: hero stats stack vertically so big mono digits never clip */
+@media (max-width: 540px) {
+  .lv2-hero-data {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Guard: marquee ticker & transition curtain can poke a few px past the
+   viewport on narrow screens — never allow horizontal page scroll. */
+html, body {
+  overflow-x: clip;
+}
+@supports not (overflow-x: clip) {
+  html, body { overflow-x: hidden; }
+}
+
+/* Language toggle pill in the landing nav */
+.lv2-lang-btn {
+  font-family: var(--lv2-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--lv2-rule);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--lv2-ink-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+.lv2-lang-btn:hover {
+  color: var(--lv2-ink);
+  border-color: var(--lv2-accent);
+}

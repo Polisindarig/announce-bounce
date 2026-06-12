@@ -94,7 +94,7 @@ def api_trades_recent() -> list:
 
 
 @app.get("/api/announcements/recent")
-def api_announcements_recent() -> list:
+def api_announcements_recent() -> dict:
     return data_loader.recent_announcements()
 
 

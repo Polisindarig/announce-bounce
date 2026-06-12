@@ -246,6 +246,7 @@ def recent_announcements() -> list[dict[str, Any]]:
         "AIRDROP": "Airdrop",
         "STAKING_EARN": "Staking / Earn",
         "DELISTING": "Delisting",
+        "MONITORING_TAG": "Monitoring Tag",
         "MAINTENANCE_SUSPENSION": "Maintenance",
         "REGULATORY": "Regulatory",
         "SECURITY_INCIDENT": "Security",
@@ -552,20 +553,9 @@ def recent_announcements() -> list[dict[str, Any]]:
     sell_feed: list[dict[str, Any]] = []
     skip_feed: list[dict[str, Any]] = []
 
-    def _is_garbage(item: dict[str, Any]) -> bool:
-        """Drop rows where the upstream extractor produced no real ticker
-        and the category is non-trading — these are mostly promo/news
-        announcements with bogus extracted symbols."""
-        sym = item.get("asset") or ""
-        if sym:
-            return False
-        return item.get("decision") == "SKIP"
-
     for _, row in events.iterrows():
         items = classify(row)
         for item in items:
-            if _is_garbage(item):
-                continue
             if item["decision"] == "BUY":
                 buy_feed.append(item)
             elif item["decision"] == "SELL":
@@ -605,7 +595,10 @@ def recent_announcements() -> list[dict[str, Any]]:
 
     feed = sorted(buy_feed + sell_feed + skip_feed,
                   key=lambda x: x["time"], reverse=True)
-    return feed
+    # n_announcements = unique announcement titles processed from
+    # events.parquet; the synthetic BUY rows above re-surface announcements
+    # already counted there, so feed rows > announcements.
+    return {"n_announcements": len(seen_titles), "items": feed}
 
 
 def equity_curve() -> list[dict[str, Any]]:

@@ -524,7 +524,9 @@ td.num, th.num { text-align: right; font-family: "JetBrains Mono", monospace; }
     z-index: 20;
   }
   .sidebar.open { transform: translateX(0); }
-  .menu-btn { display: inline-flex; }
+  /* .topbar scoping beats the later base `.menu-btn { display:none }`
+     rule, which otherwise wins the cascade at equal specificity. */
+  .topbar .menu-btn { display: inline-flex; }
   .kpi-grid { grid-template-columns: repeat(2, 1fr); }
   .grid-3 { grid-template-columns: 1fr; }
   .grid-2-equal { grid-template-columns: 1fr; }

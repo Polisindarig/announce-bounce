@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..500,0..100&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="/static/styles.css?v=3" />
-  <link rel="stylesheet" href="/static/landing.css?v=20260527i" />
+  <link rel="stylesheet" href="/static/styles.css?v=20260612a" />
+  <link rel="stylesheet" href="/static/landing.css?v=20260612a" />
   <link rel="stylesheet" href="/static/dashboard.css?v=20260527i" />
   <link rel="stylesheet" href="/static/transition.css?v=20260527i" />
   <link rel="stylesheet" href="/static/enhancements.css?v=4" />
@@ -38,6 +38,7 @@
           <a href="#numbers">Evidence</a>
           <a href="#risk">Risk</a>
           <a href="#overview" class="lv2-nav-cta" onclick="enterDashboard()">Dashboard</a>
+          <button type="button" data-lang-toggle class="lv2-lang-btn" aria-label="Türkçeye geç">TR</button>
         </div>
       </div>
     </nav>
@@ -66,7 +67,7 @@
 
         <aside class="lv2-hero-data" aria-label="Out-of-sample headline metrics">
           <div class="lv2-stat-block">
-            <span class="lv2-stat-value is-pos" id="hero-return">+87.78<span style="font-size:0.45em;color:var(--lv2-ink-faint);margin-left:0.05em">%</span></span>
+            <span class="lv2-stat-value is-pos" id="hero-return">+87.09<span style="font-size:0.45em;color:var(--lv2-ink-faint);margin-left:0.05em">%</span></span>
             <span class="lv2-stat-label">OOS cumulative return</span>
           </div>
           <div class="lv2-stat-block">
@@ -106,7 +107,7 @@
             <p class="lv2-strategy-tag is-sell">↘ Sell · Binance</p>
             <h3 class="lv2-strategy-title">Delisting announcement</h3>
             <p class="lv2-strategy-body">
-              <em>"Will Delist X"</em> triggers an immediate market sell on any open position. OOS mean drop is <code>−7.75%</code> at five minutes and <code>−17.30%</code> by eight hours <span style="color:var(--lv2-ink-faint)">(p &lt; 0.0001)</span>. Acting at the next bar avoids the deep tail.
+              <em>"Will Delist X"</em> triggers an immediate market sell on any open position. OOS mean drop is <code>−7.75%</code> at five minutes and <code>−17.30%</code> by eight hours <span style="color:var(--lv2-ink-faint)">(p &lt; 0.001)</span>. Acting at the next bar avoids the deep tail.
             </p>
           </article>
 
@@ -144,8 +145,8 @@
         <div class="lv2-numbers">
           <div class="lv2-num-cell">
             <span class="lv2-num-label">Cumulative return</span>
-            <p class="lv2-num-value is-pos">+87.78<span class="lv2-num-unit">%</span></p>
-            <p class="lv2-num-foot">64 trades over 11 months on MEXC, after fees and slippage. $10,000 → $18,778.</p>
+            <p class="lv2-num-value is-pos">+87.09<span class="lv2-num-unit">%</span></p>
+            <p class="lv2-num-foot">64 trades over 11 months on MEXC, after fees and slippage. $10,000 → $18,709.</p>
           </div>
           <div class="lv2-num-cell">
             <span class="lv2-num-label">Win rate</span>
@@ -159,13 +160,13 @@
           </div>
           <div class="lv2-num-cell">
             <span class="lv2-num-label">Maximum drawdown</span>
-            <p class="lv2-num-value">1.58<span class="lv2-num-unit">%</span></p>
+            <p class="lv2-num-value">1.60<span class="lv2-num-unit">%</span></p>
             <p class="lv2-num-foot">Peak-to-trough on equity. Fixed $1,000 per trade on a $10,000 starting balance.</p>
           </div>
           <div class="lv2-num-cell">
             <span class="lv2-num-label">Delisting drop · t+5m</span>
             <p class="lv2-num-value" style="color:var(--lv2-neg)">−7.75<span class="lv2-num-unit">%</span></p>
-            <p class="lv2-num-foot">Mean across 38 OOS delisting announcements. p &lt; 0.0001. Defensive sell triggers here.</p>
+            <p class="lv2-num-foot">Mean across 38 OOS delisting announcements. p &lt; 0.001. Defensive sell triggers here.</p>
           </div>
           <div class="lv2-num-cell">
             <span class="lv2-num-label">Monitoring drop · t+24h</span>
@@ -192,17 +193,17 @@
           <div class="lv2-risk-row">
             <span class="lv2-risk-num">01</span>
             <span class="lv2-risk-label">Position sizing</span>
-            <p class="lv2-risk-detail">Approximately <code>1%</code> account risk per trade, derived from the 12% stop-loss (size = risk ÷ SL). One symbol, one trade.</p>
+            <p class="lv2-risk-detail">Fixed <code>$1,000</code> per trade on a $10,000 balance — 10% of equity, roughly one-eighth of the full-Kelly fraction implied by the OOS edge. One symbol, one trade.</p>
           </div>
           <div class="lv2-risk-row">
             <span class="lv2-risk-num">02</span>
             <span class="lv2-risk-label">Stop-loss</span>
-            <p class="lv2-risk-detail">Hard SL at <code>−12%</code> from entry, calibrated from the 30th percentile MAE of in-sample winners. Calibration frozen across the OOS window.</p>
+            <p class="lv2-risk-detail">Hard SL at <code>−8%</code> from entry, selected by a 1,408-variant in-sample grid search. Calibration frozen across the OOS window.</p>
           </div>
           <div class="lv2-risk-row">
             <span class="lv2-risk-num">03</span>
             <span class="lv2-risk-label">Time stop</span>
-            <p class="lv2-risk-detail">Forced close at <code>8h</code>. Listing momentum decays fast — Empirica (2024) shows post-listing tokens lose 6.3% in week one.</p>
+            <p class="lv2-risk-detail">Forced close at <code>1h</code>. Listing momentum decays fast — Empirica (2024) shows post-listing tokens lose 6.34% in week one.</p>
           </div>
           <div class="lv2-risk-row">
             <span class="lv2-risk-num">04</span>
@@ -211,8 +212,8 @@
           </div>
           <div class="lv2-risk-row">
             <span class="lv2-risk-num">05</span>
-            <span class="lv2-risk-label">Daily loss limit</span>
-            <p class="lv2-risk-detail">Trading halts at <code>−5%</code> daily drawdown. Resumes at next UTC day.</p>
+            <span class="lv2-risk-label">Cost modeling</span>
+            <p class="lv2-risk-detail">Every entry pays a <code>1%</code> slippage proxy plus a 10 bps round-trip taker fee. All reported returns are net of both.</p>
           </div>
           <div class="lv2-risk-row">
             <span class="lv2-risk-num">06</span>
@@ -283,6 +284,7 @@
         <button class="btn btn-sm btn-ghost" onclick="exitDashboard()" style="width:100%;justify-content:center;font-size:12px">
           ← Back to Home
         </button>
+        <button type="button" data-lang-toggle class="btn btn-sm btn-ghost" style="width:100%;justify-content:center;font-size:12px;margin-top:8px" aria-label="Türkçeye geç">TR</button>
         <div style="margin-top:12px">
           <code id="git-head">—</code>
           <span id="manifest-time">manifest: —</span>
@@ -361,7 +363,7 @@
           <div class="card">
             <div class="card-header">
               <h2>Performance by Category</h2>
-              <span class="hint">Tier 1</span>
+              <span class="hint">bullish event categories</span>
             </div>
             <div id="category-breakdown"></div>
           </div>
@@ -390,7 +392,7 @@
       <section class="page" id="page-announcements">
         <header class="page-header">
           <h1>Announcements</h1>
-          <p class="subtitle">Every Binance announcement the bot ingested — with its categorization and decision.</p>
+          <p class="subtitle">Every Binance announcement in the out-of-sample window — with its categorization and decision.</p>
         </header>
 
         <div class="kpi-grid" id="ann-kpis"></div>
@@ -424,15 +426,39 @@
           <div class="muted" style="padding:24px">Loading bot state…</div>
         </div>
 
-        <div class="grid-2" style="margin-top:16px">
-          <div class="card">
-            <div class="card-header"><h2>Connections</h2><span class="hint">data feeds</span></div>
-            <div id="monitor-connections"></div>
+        <!-- API CONFIGURATION — keys arm the live loop (paper mode) -->
+        <div class="card" style="margin-top:16px">
+          <div class="card-header">
+            <h2>API Configuration</h2>
+            <span class="hint" id="api-config-hint">add all three keys to arm the live loop</span>
           </div>
-          <div class="card">
-            <div class="card-header"><h2>Detection Latency</h2><span class="hint">announcement → signal</span></div>
-            <div id="monitor-latency"></div>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;padding:4px 0 8px">
+            <div>
+              <label for="api-mexc" style="display:block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.65;margin-bottom:6px">MEXC API Key</label>
+              <input type="password" id="api-mexc" class="ann-search-input" style="width:100%" placeholder="mx0v…" autocomplete="off" />
+              <span class="hint" id="api-mexc-status" style="display:block;margin-top:6px">not set</span>
+            </div>
+            <div>
+              <label for="api-binance" style="display:block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.65;margin-bottom:6px">Binance API Key</label>
+              <input type="password" id="api-binance" class="ann-search-input" style="width:100%" placeholder="vmPU…" autocomplete="off" />
+              <span class="hint" id="api-binance-status" style="display:block;margin-top:6px">not set</span>
+            </div>
+            <div>
+              <label for="api-announce" style="display:block;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;opacity:0.65;margin-bottom:6px">Binance Announcement API</label>
+              <input type="password" id="api-announce" class="ann-search-input" style="width:100%" placeholder="https://www.binance.com/bapi/composite/v1/…" autocomplete="off" />
+              <span class="hint" id="api-announce-status" style="display:block;margin-top:6px">not set</span>
+            </div>
           </div>
+          <div style="display:flex;align-items:center;gap:12px;padding-bottom:4px">
+            <button class="btn btn-sm" onclick="saveApiKeys()">Save &amp; Connect</button>
+            <button class="btn btn-sm btn-ghost" onclick="clearApiKeys()">Clear</button>
+            <span class="hint" id="api-armed-note"></span>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px">
+          <div class="card-header"><h2>Connections</h2><span class="hint">data feeds</span></div>
+          <div id="monitor-connections"></div>
         </div>
 
         <div class="card" style="margin-top:16px">
@@ -460,8 +486,9 @@
     </main>
   </div>
 
-  <script src="/static/app.js?v=20260527j"></script>
-  <script src="/static/enhancements.js?v=3" defer></script>
+  <script src="/static/app.js?v=20260612i"></script>
+  <script src="/static/enhancements.js?v=20260612c" defer></script>
+  <script src="/static/i18n.js?v=20260612c" defer></script>
 
   <!-- Subtle three.js background in hero — editorial, non-intrusive -->
   <script type="importmap">

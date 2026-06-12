@@ -88,7 +88,7 @@
       }
 
       if (t < 1) requestAnimationFrame(tick);
-      else el.firstChild.nodeValue = prefix + finalNum.toFixed(decimals) + suffix;
+      else el.firstChild.nodeValue = finalText;
     }
     requestAnimationFrame(tick);
   }
@@ -118,11 +118,16 @@
       all.forEach((el) => el.dataset.finalText && animateValue(el, el.dataset.finalText));
       return;
     }
+    const fire = (el) => {
+      if (!el.dataset.finalText || el.dataset.counted) return;
+      el.dataset.counted = "1";
+      animateValue(el, el.dataset.finalText);
+    };
     const io = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.target.dataset.finalText) {
-            animateValue(entry.target, entry.target.dataset.finalText);
+          if (entry.isIntersecting) {
+            fire(entry.target);
             io.unobserve(entry.target);
           }
         });
@@ -130,6 +135,21 @@
       { threshold: 0.4 }
     );
     all.forEach((el) => io.observe(el));
+
+    // Fallback: some embedded webviews never deliver IO entries. On scroll,
+    // manually fire any counter that is inside the viewport and still zeroed.
+    const sweep = () => {
+      all.forEach((el) => {
+        if (el.dataset.counted) return;
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight && r.bottom > 0) fire(el);
+      });
+      if (all.every((el) => el.dataset.counted)) {
+        window.removeEventListener("scroll", sweep);
+      }
+    };
+    window.addEventListener("scroll", sweep, { passive: true });
+    setTimeout(sweep, 1200);
   }
 
   /* ---------- 4. 3D TILT ON CARDS ---------- */
@@ -197,25 +217,28 @@
     const hero = $(".lv2-hero");
     if (!hero) return;
 
+    // Real out-of-sample events: bullish entries are actual OOS trades
+    // (phase 6 backtest, net return); bearish entries are actual OOS
+    // t+5m drops from the delisting / monitoring event study.
     const items = [
-      { sym: "PEPE",  evt: "Listed · Spot",         pct: "+12.4%", cls: "tk-pos" },
-      { sym: "SUSHI", evt: "Monitoring tag",         pct: "−3.1%",  cls: "tk-neg" },
-      { sym: "WLD",   evt: "Launchpool",             pct: "+8.9%",  cls: "tk-pos" },
-      { sym: "OMG",   evt: "Will delist",            pct: "−7.8%",  cls: "tk-neg" },
-      { sym: "JTO",   evt: "Hodler Airdrop",         pct: "+15.0%", cls: "tk-pos" },
-      { sym: "WAVES", evt: "Monitoring tag",         pct: "−5.6%",  cls: "tk-neg" },
-      { sym: "STRK",  evt: "Listed · Spot",          pct: "+9.2%",  cls: "tk-pos" },
-      { sym: "BTS",   evt: "Will delist",            pct: "−12.1%", cls: "tk-neg" },
-      { sym: "PORTAL",evt: "Launchpad",              pct: "+22.5%", cls: "tk-pos" },
-      { sym: "FTT",   evt: "Monitoring tag",         pct: "−4.4%",  cls: "tk-neg" },
-      { sym: "MEME",  evt: "Listed · Spot",          pct: "+6.7%",  cls: "tk-pos" },
-      { sym: "MOB",   evt: "Will delist",            pct: "−8.2%",  cls: "tk-neg" },
+      { sym: "MYX",    evt: "Listed · Futures",  pct: "+25.0%", cls: "tk-pos" },
+      { sym: "KMD",    evt: "Monitoring tag",    pct: "−20.6%", cls: "tk-neg" },
+      { sym: "PUFFER", evt: "Listed · Futures",  pct: "+11.2%", cls: "tk-pos" },
+      { sym: "MDT",    evt: "Will delist",       pct: "−36.9%", cls: "tk-neg" },
+      { sym: "EUL",    evt: "Hodler Airdrop",    pct: "+25.0%", cls: "tk-pos" },
+      { sym: "LTO",    evt: "Will delist",       pct: "−36.2%", cls: "tk-neg" },
+      { sym: "CFG",    evt: "Listed · Spot",     pct: "+25.0%", cls: "tk-pos" },
+      { sym: "FARM",   evt: "Will delist",       pct: "−24.7%", cls: "tk-neg" },
+      { sym: "IDOL",   evt: "Listed · Futures",  pct: "+8.0%",  cls: "tk-pos" },
+      { sym: "IDEX",   evt: "Will delist",       pct: "−23.8%", cls: "tk-neg" },
+      { sym: "OL",     evt: "Listed · Futures",  pct: "+7.0%",  cls: "tk-pos" },
+      { sym: "DATA",   evt: "Will delist",       pct: "−22.6%", cls: "tk-neg" },
     ];
 
     const ticker = document.createElement("div");
     ticker.className = "lv2-ticker";
     ticker.innerHTML = `
-      <div class="lv2-ticker-tag">● LIVE</div>
+      <div class="lv2-ticker-tag">● OOS SIGNALS</div>
       <div class="lv2-ticker-track"></div>
     `;
     const track = ticker.querySelector(".lv2-ticker-track");
