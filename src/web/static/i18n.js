@@ -113,7 +113,7 @@
       "Botun gerçekleştirdiği her işlem — giriş, çıkış ve sonuç. Örneklem dışı (64 işlem).",
     "Every Binance announcement in the out-of-sample window — with its categorization and decision.":
       "Örneklem dışı penceredeki her Binance duyurusu — kategorisi ve kararıyla.",
-    "Real-time bot status, connections, latency, and open positions.":
+    "Real-time bot status, connections, and open positions.":
       "Gerçek zamanlı bot durumu, bağlantılar ve açık pozisyonlar.",
     // cards
     "Equity Curve": "Özsermaye Eğrisi",
